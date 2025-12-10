@@ -22,16 +22,19 @@ export default function PaymentsPage() {
     setLoading(true);
     try {
       const response = await registrationService.getMyRegistrations();
-      const resData = response.data as Record<string, unknown>;
+      const resData = response.data as unknown;
       
       let registrationData: Registration[] = [];
       
       if (Array.isArray(resData)) {
         registrationData = resData;
-      } else if (resData?.data && Array.isArray(resData.data)) {
-        registrationData = resData.data as Registration[];
-      } else if (resData?.items && Array.isArray(resData.items)) {
-        registrationData = resData.items as Registration[];
+      } else if (typeof resData === 'object' && resData !== null) {
+        const objData = resData as Record<string, unknown>;
+        if (objData.data && Array.isArray(objData.data)) {
+          registrationData = objData.data as Registration[];
+        } else if (objData.items && Array.isArray(objData.items)) {
+          registrationData = objData.items as Registration[];
+        }
       }
       
       setRegistrations(registrationData);

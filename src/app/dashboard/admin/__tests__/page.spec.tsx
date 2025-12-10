@@ -46,8 +46,16 @@ vi.mock('@/services', () => ({
 }));
 
 // Mock auth store
-const mockUser = { id: '1', firstName: 'Admin', lastName: 'User', email: 'admin@example.com', role: 'ADMIN' as const };
-let currentUser = mockUser;
+type UserRole = 'ADMIN' | 'ORGANIZER' | 'PARTICIPANT' | 'USER';
+interface MockUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: UserRole;
+}
+const mockUser: MockUser = { id: '1', firstName: 'Admin', lastName: 'User', email: 'admin@example.com', role: 'ADMIN' };
+let currentUser: MockUser = mockUser;
 
 vi.mock('@/store', () => ({
   useAuthStore: () => ({
@@ -136,7 +144,7 @@ describe('AdminDashboardPage', () => {
 
   describe('Access Control', () => {
     it('should redirect non-admin users to dashboard', async () => {
-      currentUser = { ...mockUser, role: 'ORGANIZER' as const };
+      currentUser = { ...mockUser, role: 'USER' };
 
       render(<AdminDashboardPage />);
 

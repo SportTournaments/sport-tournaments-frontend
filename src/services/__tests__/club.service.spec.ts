@@ -200,10 +200,10 @@ describe('Club Service', () => {
 
   describe('adminUpdateClub', () => {
     it('should call admin endpoint', async () => {
-      const updateData = { verified: true };
+      const updateData = { isVerified: true };
       mockApiPatch.mockResolvedValue({
         success: true,
-        data: { id: '123', verified: true },
+        data: { id: '123', isVerified: true },
       });
 
       await clubService.adminUpdateClub('123', updateData);

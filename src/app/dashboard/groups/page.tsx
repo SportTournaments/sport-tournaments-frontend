@@ -80,7 +80,7 @@ export default function GroupsPage() {
     if (!selectedTournament) return;
     
     try {
-      await groupService.executeDraw(selectedTournament, { randomize: true });
+      await groupService.executeDraw(selectedTournament, { numberOfGroups: 4 });
       fetchGroups(selectedTournament);
     } catch (error) {
       console.error('Failed to execute draw:', error);
@@ -195,7 +195,7 @@ export default function GroupsPage() {
               <Card key={group.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{t('groups.group')} {group.name}</span>
+                    <span>{t('groups.group')} {group.groupLetter}</span>
                     <Badge variant="info">{group.teams?.length || 0} {t('common.teams')}</Badge>
                   </CardTitle>
                 </CardHeader>

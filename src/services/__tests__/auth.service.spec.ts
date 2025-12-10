@@ -34,6 +34,7 @@ describe('Auth Service', () => {
       password: 'password123',
       firstName: 'John',
       lastName: 'Doe',
+      country: 'Romania',
     };
 
     it('should call API with correct endpoint and data', async () => {
@@ -288,7 +289,7 @@ describe('Auth Service', () => {
     });
 
     it('should return false when access token does not exist', () => {
-      mockGetTokenFromCookie.mockReturnValue(undefined);
+      mockGetTokenFromCookie.mockReturnValue(null);
 
       const result = authService.isAuthenticated();
 
@@ -320,7 +321,7 @@ describe('Auth Service', () => {
 
     it('should return null when access token is missing', () => {
       mockGetTokenFromCookie
-        .mockReturnValueOnce(undefined)
+        .mockReturnValueOnce(null)
         .mockReturnValueOnce('refresh-token');
 
       const result = authService.getTokens();
@@ -331,7 +332,7 @@ describe('Auth Service', () => {
     it('should return null when refresh token is missing', () => {
       mockGetTokenFromCookie
         .mockReturnValueOnce('access-token')
-        .mockReturnValueOnce(undefined);
+        .mockReturnValueOnce(null);
 
       const result = authService.getTokens();
 
@@ -339,7 +340,7 @@ describe('Auth Service', () => {
     });
 
     it('should return null when both tokens are missing', () => {
-      mockGetTokenFromCookie.mockReturnValue(undefined);
+      mockGetTokenFromCookie.mockReturnValue(null);
 
       const result = authService.getTokens();
 
