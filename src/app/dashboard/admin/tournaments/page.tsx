@@ -145,19 +145,20 @@ export default function AdminTournamentsPage() {
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <div className="w-full sm:w-48">
-                <Select
-                  options={statusOptions}
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                />
+                <div className="w-full sm:w-48">
+                  <Select
+                    options={statusOptions}
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  />
+                </div>
+                <Button variant="primary" onClick={handleSearch}>
+                  Search
+                </Button>
               </div>
-              <Button variant="primary" onClick={handleSearch}>
-                Search
-              </Button>
             </div>
           </CardContent>
         </Card>

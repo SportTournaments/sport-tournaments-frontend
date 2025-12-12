@@ -184,19 +184,20 @@ export default function AdminUsersPage() {
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <div className="w-full sm:w-48">
-                <Select
-                  options={roleOptions}
-                  value={roleFilter}
-                  onChange={(e) => {
-                    setRoleFilter(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                />
+                <div className="w-full sm:w-48">
+                  <Select
+                    options={roleOptions}
+                    value={roleFilter}
+                    onChange={(e) => {
+                      setRoleFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  />
+                </div>
+                <Button variant="primary" onClick={handleSearch}>
+                  Search
+                </Button>
               </div>
-              <Button variant="primary" onClick={handleSearch}>
-                Search
-              </Button>
             </div>
           </CardContent>
         </Card>
