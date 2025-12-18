@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware';
 import type { User } from '@/types';
 import { authService } from '@/services';
 import { clearAllTokens } from '@/utils/cookies';
+import { getApiErrorMessage } from '@/utils/helpers';
 
 interface AuthState {
   user: User | null;
@@ -59,9 +60,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false, error: 'Login failed' });
           return false;
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Login failed';
+          const message = getApiErrorMessage(error, 'Login failed');
           set({ isLoading: false, error: message });
-          return false;
+          throw new Error(message);
         }
       },
 
@@ -80,9 +81,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false, error: 'Registration failed' });
           return false;
         } catch (error) {
-          const message = error instanceof Error ? error.message : 'Registration failed';
+          const message = getApiErrorMessage(error, 'Registration failed');
           set({ isLoading: false, error: message });
-          return false;
+          throw new Error(message);
         }
       },
 
