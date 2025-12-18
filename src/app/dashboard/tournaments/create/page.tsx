@@ -83,7 +83,8 @@ export default function CreateTournamentPage() {
       //   }
       // }
 
-      router.push(`/dashboard/tournaments/${response.data?.id}`);
+      // Redirect to tournament preview page
+      router.push(`/main/tournaments/${response.data?.id}`);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create tournament';
       setError(errorMessage);
@@ -218,7 +219,7 @@ export default function CreateTournamentPage() {
                   control={control}
                   render={({ field }) => (
                     <Select
-                      label={t('tournament.format')}
+                      label={t('tournament.format.label')}
                       options={formatOptions}
                       error={errors.format?.message}
                       {...field}
@@ -230,7 +231,7 @@ export default function CreateTournamentPage() {
                   control={control}
                   render={({ field }) => (
                     <Select
-                      label={t('tournament.ageCategory')}
+                      label={t('tournament.ageCategory.label')}
                       options={ageCategoryOptions}
                       error={errors.ageCategory?.message}
                       {...field}
