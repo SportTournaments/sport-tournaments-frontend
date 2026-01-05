@@ -535,6 +535,8 @@
     "registrationFee": "Registration Fee",
     "numberOfGroups": "Number of Groups",
     "teamsPerGroup": "Teams per Group",
+    "groupsExceedMaxTeams": "⚠ Total capacity ({{groups}} groups × {{perGroup}} teams = {{total}}) exceeds max teams ({{max}}). Please adjust.",
+    "groupsCapacityInfo": "ℹ Total capacity: {{groups}} groups × {{perGroup}} teams = {{total}} teams (max: {{max}})",
     "rules": "Tournament Rules",
     "rulesOptional": "Rules (Optional)",
     "rulesPlaceholder": "Enter the rules and regulations for your tournament...",

@@ -607,6 +607,8 @@
     "banner": "Imagine banner",
     "numberOfGroups": "Număr grupe",
     "teamsPerGroup": "Echipe pe grupă",
+    "groupsExceedMaxTeams": "⚠ Capacitatea totală ({{groups}} grupe × {{perGroup}} echipe = {{total}}) depășește maximul de echipe ({{max}}). Ajustează valorile.",
+    "groupsCapacityInfo": "ℹ Capacitate totală: {{groups}} grupe × {{perGroup}} echipe = {{total}} echipe (max: {{max}})",
     "info": "Informații turneu",
     "overview": "Prezentare generală",
     "matches": "Meciuri",
