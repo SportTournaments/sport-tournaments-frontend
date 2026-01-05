@@ -16,30 +16,34 @@ export default function DashboardTournamentsPage() {
   const { t } = useTranslation();
 
   const fetchTournaments = useCallback(async (page: number) => {
-    const response = await tournamentService.getMyTournaments({ page, pageSize: PAGE_SIZE });
-    const resData = response.data as any;
+    // getMyTournaments returns all tournaments for the user (no pagination)
+    // We simulate pagination client-side for infinite scroll UX
+    if (page > 1) {
+      // Already loaded all data on first page
+      return { items: [], hasMore: false, totalPages: 1 };
+    }
+    
+    const response = await tournamentService.getMyTournaments();
+    const resData = response.data as unknown;
     
     // Handle different response structures
     let tournamentData: Tournament[] = [];
-    let totalPages = 1;
     
     if (Array.isArray(resData)) {
       tournamentData = resData;
-    } else if (resData?.data?.items && Array.isArray(resData.data.items)) {
-      tournamentData = resData.data.items;
-      totalPages = resData.data.totalPages || resData.data.meta?.totalPages || 1;
-    } else if (resData?.items && Array.isArray(resData.items)) {
-      tournamentData = resData.items;
-      totalPages = resData.totalPages || resData.meta?.totalPages || 1;
-    } else if (resData?.data && Array.isArray(resData.data)) {
-      tournamentData = resData.data;
-      totalPages = resData.totalPages || resData.meta?.totalPages || 1;
+    } else if (resData && typeof resData === 'object') {
+      const data = resData as Record<string, unknown>;
+      if (data.data && Array.isArray(data.data)) {
+        tournamentData = data.data as Tournament[];
+      } else if (data.items && Array.isArray(data.items)) {
+        tournamentData = data.items as Tournament[];
+      }
     }
     
     return {
       items: tournamentData,
-      hasMore: page < totalPages,
-      totalPages,
+      hasMore: false, // All data loaded at once
+      totalPages: 1,
     };
   }, []);
 

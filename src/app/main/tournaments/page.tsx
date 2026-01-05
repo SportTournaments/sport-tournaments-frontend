@@ -244,7 +244,7 @@ export default function TournamentsPage() {
 
             {/* Infinite scroll sentinel & loading indicator */}
             <div 
-              ref={sentinelRef as React.RefObject<HTMLDivElement>}
+              ref={sentinelRef}
               className="mt-8 flex justify-center py-4"
             >
               {isFetchingMore && (

@@ -15,30 +15,34 @@ export default function DashboardClubsPage() {
   const { t } = useTranslation();
 
   const fetchClubs = useCallback(async (page: number) => {
-    const response = await clubService.getMyClubs({ page, pageSize: PAGE_SIZE });
-    const resData = response.data as any;
+    // getMyClubs returns all clubs for the user (no pagination)
+    // We simulate pagination client-side for infinite scroll UX
+    if (page > 1) {
+      // Already loaded all data on first page
+      return { items: [], hasMore: false, totalPages: 1 };
+    }
+    
+    const response = await clubService.getMyClubs();
+    const resData = response.data as unknown;
     
     // Handle different response structures
     let clubData: Club[] = [];
-    let totalPages = 1;
     
     if (Array.isArray(resData)) {
       clubData = resData;
-    } else if (resData?.data?.items && Array.isArray(resData.data.items)) {
-      clubData = resData.data.items;
-      totalPages = resData.data.totalPages || resData.data.meta?.totalPages || 1;
-    } else if (resData?.items && Array.isArray(resData.items)) {
-      clubData = resData.items;
-      totalPages = resData.totalPages || resData.meta?.totalPages || 1;
-    } else if (resData?.data && Array.isArray(resData.data)) {
-      clubData = resData.data;
-      totalPages = resData.totalPages || resData.meta?.totalPages || 1;
+    } else if (resData && typeof resData === 'object') {
+      const data = resData as Record<string, unknown>;
+      if (data.data && Array.isArray(data.data)) {
+        clubData = data.data as Club[];
+      } else if (data.items && Array.isArray(data.items)) {
+        clubData = data.items as Club[];
+      }
     }
     
     return {
       items: clubData,
-      hasMore: page < totalPages,
-      totalPages,
+      hasMore: false, // All data loaded at once
+      totalPages: 1,
     };
   }, []);
 
