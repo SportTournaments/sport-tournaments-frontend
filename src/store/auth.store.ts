@@ -2,10 +2,12 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import axios from 'axios';
 import type { User } from '@/types';
 import { authService } from '@/services';
 import { clearAllTokens } from '@/utils/cookies';
 import { getApiErrorMessage } from '@/utils/helpers';
+
 
 interface AuthState {
   user: User | null;
