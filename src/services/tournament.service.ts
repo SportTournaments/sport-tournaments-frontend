@@ -121,10 +121,10 @@ export async function getInvitationCode(
   // Transform backend response to match expected format
   return {
     ...response,
-    data: response.data ? {
+    data: {
       code: response.data.invitationCode,
       expiresAt: response.data.expiresAt,
-    } : undefined,
+    },
   };
 }
 
@@ -140,10 +140,10 @@ export async function regenerateInvitationCode(
   // Transform backend response to match expected format
   return {
     ...response,
-    data: response.data ? {
+    data: {
       code: response.data.invitationCode,
       expiresAt: response.data.expiresAt,
-    } : undefined,
+    },
   };
 }
 
