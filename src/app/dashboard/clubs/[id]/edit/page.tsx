@@ -156,13 +156,13 @@ export default function EditClubPage() {
       
       await clubService.updateClub(params.id as string, updateData);
       
-      // Upload logo if new file was selected
+      // Upload new logo if selected
       if (logoFile) {
         try {
           await clubService.uploadLogo(params.id as string, logoFile);
-        } catch (logoErr) {
-          console.error('Failed to upload logo:', logoErr);
-          setError('Club updated, but logo upload failed.');
+        } catch (err) {
+          console.error('Failed to upload logo:', err);
+          // Don't block club update if logo upload fails
         }
       }
       
