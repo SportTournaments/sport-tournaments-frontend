@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 interface AuthLayoutProps {
@@ -11,6 +12,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ro' : 'en';
@@ -22,10 +24,32 @@ export default function AuthLayout({ children, title, subtitle }: AuthLayoutProp
       {/* Header */}
       <header className="p-4">
         <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">⚽</span>
-            <span className="font-bold text-xl text-primary">Football EU</span>
-          </Link>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              aria-label="Go back"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              {t('common.back', 'Back')}
+            </button>
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-2xl">⚽</span>
+              <span className="font-bold text-xl text-primary">Football EU</span>
+            </Link>
+          </div>
           <button
             onClick={toggleLanguage}
             className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
