@@ -129,11 +129,11 @@ export const useUIStore = create<UIState>()(
           storage.removeItem(name);
         },
       },
-      partialize: (state) => ({ 
-        theme: state.theme, 
+      partialize: (state) => ({
+        theme: state.theme,
         language: state.language,
         sidebarOpen: state.sidebarOpen,
-      }),
+      }) as UIState,
     }
   )
 );

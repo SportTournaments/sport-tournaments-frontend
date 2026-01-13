@@ -183,10 +183,10 @@ export const useAuthStore = create<AuthState>()(
           storage.removeItem(name);
         },
       },
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
-      }),
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated
+      }) as AuthState,
     }
   )
 );
