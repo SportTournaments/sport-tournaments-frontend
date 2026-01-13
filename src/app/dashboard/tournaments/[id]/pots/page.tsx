@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert, Loading } from '@/components/ui';
-import { potDrawService, tournamentService } from '@/services';
+import { potDrawService, tournamentService, registrationService } from '@/services';
 import type { Tournament, Registration } from '@/types';
 import { ArrowLeft, Users, CheckCircle2, AlertCircle, Shuffle } from 'lucide-react';
 import Link from 'next/link';
@@ -50,8 +50,8 @@ export default function PotManagementPage() {
       setTournament(tournamentRes.data);
 
       // Fetch registrations
-      const regRes = await tournamentService.getTournamentRegistrations(tournamentId);
-      const approvedRegs = regRes.data.filter((r: Registration) => r.status === 'APPROVED');
+      const regRes = await registrationService.getTournamentRegistrations(tournamentId);
+      const approvedRegs = regRes.data.items.filter((r: Registration) => r.status === 'APPROVED');
       setRegistrations(approvedRegs);
 
       // Fetch pot assignments
@@ -67,7 +67,25 @@ export default function PotManagementPage() {
   const fetchPotAssignments = async () => {
     try {
       const response = await potDrawService.getPotAssignments(tournamentId);
-      setPots(response.data || []);
+      // Backend returns {success: true, data: [...]} so we need response.data.data
+      const potsData = Array.isArray(response.data?.data) 
+        ? response.data.data 
+        : Array.isArray(response.data) 
+          ? response.data 
+          : [];
+      
+      // Always set all 4 pots (backend always returns 4 pots)
+      if (potsData.length === 4) {
+        setPots(potsData);
+      } else {
+        // Fallback: Initialize with empty pots
+        setPots([
+          { potNumber: 1, count: 0, teams: [] },
+          { potNumber: 2, count: 0, teams: [] },
+          { potNumber: 3, count: 0, teams: [] },
+          { potNumber: 4, count: 0, teams: [] },
+        ]);
+      }
     } catch (err: any) {
       console.error('Failed to fetch pot assignments:', err);
       // Don't set error here as this might be the first time accessing pots
@@ -142,6 +160,7 @@ export default function PotManagementPage() {
   };
 
   const getTotalAssigned = () => {
+    if (!Array.isArray(pots)) return 0;
     return pots.reduce((sum, pot) => sum + pot.count, 0);
   };
 

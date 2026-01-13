@@ -26,21 +26,21 @@ class PotDrawService {
    * Get all pot assignments for a tournament
    */
   async getPotAssignments(tournamentId: string) {
-    return api.get<PotResponse[]>(`/tournaments/${tournamentId}/pots`);
+    return api.get<PotResponse[]>(`/v1/tournaments/${tournamentId}/pots`);
   }
 
   /**
    * Assign a single team to a pot
    */
   async assignTeamToPot(tournamentId: string, dto: AssignTeamToPotDto) {
-    return api.post(`/tournaments/${tournamentId}/pots/assign`, dto);
+    return api.post(`/v1/tournaments/${tournamentId}/pots/assign`, dto);
   }
 
   /**
    * Assign multiple teams to pots at once
    */
   async assignTeamsToPotsBulk(tournamentId: string, assignments: AssignTeamToPotDto[]) {
-    return api.post(`/tournaments/${tournamentId}/pots/bulk-assign`, {
+    return api.post(`/v1/tournaments/${tournamentId}/pots/bulk-assign`, {
       assignments,
     });
   }
@@ -49,21 +49,21 @@ class PotDrawService {
    * Validate pot distribution
    */
   async validatePotDistribution(tournamentId: string) {
-    return api.post(`/tournaments/${tournamentId}/pots/validate`);
+    return api.post(`/v1/tournaments/${tournamentId}/pots/validate`);
   }
 
   /**
    * Execute pot-based draw to create groups
    */
   async executePotDraw(tournamentId: string, dto: ExecutePotDrawDto) {
-    return api.post(`/tournaments/${tournamentId}/pots/draw`, dto);
+    return api.post(`/v1/tournaments/${tournamentId}/pots/draw`, dto);
   }
 
   /**
    * Clear all pot assignments for a tournament
    */
   async clearPotAssignments(tournamentId: string) {
-    return api.delete(`/tournaments/${tournamentId}/pots`);
+    return api.delete(`/v1/tournaments/${tournamentId}/pots`);
   }
 }
 
