@@ -68,7 +68,7 @@ const nextConfig = {
   
   // Environment variables validation
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010/api/v1',
   },
 };
 

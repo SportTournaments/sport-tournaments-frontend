@@ -165,7 +165,7 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api' }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:3010/api/v1' }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

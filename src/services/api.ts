@@ -4,7 +4,7 @@ import type { ApiError } from '@/types';
 
 // Create axios instance
 export const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010/api/v1',
   timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
   withCredentials: false,
   headers: {
@@ -103,7 +103,7 @@ api.interceptors.response.use(
 
         // Call refresh token endpoint
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/refresh-token`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010/api/v1'}/auth/refresh-token`,
           { refreshToken },
           {
             timeout: 5000,
