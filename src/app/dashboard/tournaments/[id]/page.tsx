@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { Users } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert, Loading, Tabs, InvitationCodeManager, Modal } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge, Alert, Loading, Tabs, InvitationCodeManager, Modal } from '@/components/ui';
 import { tournamentService, registrationService, fileService } from '@/services';
 import type { Tournament, Registration, TournamentStatus, RegistrationStatus } from '@/types';
 import { formatDate, formatDateTime } from '@/utils/date';
@@ -403,18 +404,33 @@ export default function TournamentDetailPage() {
       id: 'groups',
       label: t('tournament.groups'),
       content: (
-        <Card>
-          <CardContent className="text-center py-12">
-            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-            </svg>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Groups & Draw
-            </h3>
-            <p className="text-gray-500 mb-4">Set up groups and perform the draw</p>
-            <Button variant="primary">Create Groups</Button>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pot-Based Draw System</CardTitle>
+              <CardDescription>
+                Organize teams into pots based on strength and create balanced groups
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center py-8">
+              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Groups & Draw Management
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Assign teams to pots (1-4) and execute a fair draw to create balanced groups
+              </p>
+              <Link href={`/dashboard/tournaments/${tournament.id}/pots`}>
+                <Button variant="primary">
+                  <Users className="w-4 h-4 mr-2" />
+                  Manage Pots & Draw
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       ),
     },
     {
