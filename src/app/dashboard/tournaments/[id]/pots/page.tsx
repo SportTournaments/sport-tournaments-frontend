@@ -41,6 +41,18 @@ export default function PotManagementPage() {
     fetchData();
   }, [tournamentId]);
 
+  useEffect(() => {
+    // Update pots when numberOfGroups changes
+    if (pots.length !== numberOfGroups && getTotalAssigned() === 0) {
+      const newPots = Array.from({ length: numberOfGroups }, (_, i) => ({
+        potNumber: i + 1,
+        count: 0,
+        teams: [],
+      }));
+      setPots(newPots);
+    }
+  }, [numberOfGroups]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -75,27 +87,27 @@ export default function PotManagementPage() {
           ? response.data 
           : [];
       
-      // Always set all 4 pots (backend always returns 4 pots)
-      if (potsData.length === 4) {
+      // Set pots based on potsData or initialize based on numberOfGroups
+      if (potsData.length > 0) {
         setPots(potsData);
       } else {
-        // Fallback: Initialize with empty pots
-        setPots([
-          { potNumber: 1, count: 0, teams: [] },
-          { potNumber: 2, count: 0, teams: [] },
-          { potNumber: 3, count: 0, teams: [] },
-          { potNumber: 4, count: 0, teams: [] },
-        ]);
+        // Initialize with empty pots matching numberOfGroups
+        const initialPots = Array.from({ length: numberOfGroups }, (_, i) => ({
+          potNumber: i + 1,
+          count: 0,
+          teams: [],
+        }));
+        setPots(initialPots);
       }
     } catch (err: any) {
       console.error('Failed to fetch pot assignments:', err);
       // Don't set error here as this might be the first time accessing pots
-      setPots([
-        { potNumber: 1, count: 0, teams: [] },
-        { potNumber: 2, count: 0, teams: [] },
-        { potNumber: 3, count: 0, teams: [] },
-        { potNumber: 4, count: 0, teams: [] },
-      ]);
+      const initialPots = Array.from({ length: numberOfGroups }, (_, i) => ({
+        potNumber: i + 1,
+        count: 0,
+        teams: [],
+      }));
+      setPots(initialPots);
     }
   };
 
@@ -172,8 +184,7 @@ export default function PotManagementPage() {
     return (
       totalAssigned === registrations.length &&
       totalAssigned > 0 &&
-      allPotsSameSize &&
-      totalAssigned % numberOfGroups === 0
+      allPotsSameSize
     );
   };
 
@@ -278,9 +289,6 @@ export default function PotManagementPage() {
                       {getTotalAssigned() !== registrations.length && (
                         <li>All teams must be assigned to pots</li>
                       )}
-                      {registrations.length % numberOfGroups !== 0 && (
-                        <li>Total teams ({registrations.length}) must be divisible by number of groups ({numberOfGroups})</li>
-                      )}
                       {!pots.every((pot) => pot.count === pots[0].count || pot.count === 0) && (
                         <li>All non-empty pots must have the same number of teams</li>
                       )}
@@ -373,15 +381,15 @@ export default function PotManagementPage() {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4].map((potNum) => (
+                    <div className="flex gap-2 flex-wrap">
+                      {pots.map((pot) => (
                         <Button
-                          key={potNum}
+                          key={pot.potNumber}
                           size="sm"
-                          variant={assignedPot === potNum ? 'primary' : 'outline'}
-                          onClick={() => handleAssignToPot(reg.id, potNum)}
+                          variant={assignedPot === pot.potNumber ? 'primary' : 'outline'}
+                          onClick={() => handleAssignToPot(reg.id, pot.potNumber)}
                         >
-                          Pot {potNum}
+                          Pot {pot.potNumber}
                         </Button>
                       ))}
                     </div>
