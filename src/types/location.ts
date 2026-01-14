@@ -4,6 +4,7 @@ export interface LocationSuggestion {
   id?: string;
   formattedAddress: string;
   city: string;
+  region?: string; // County/State
   country: string;
   latitude: number;
   longitude: number;

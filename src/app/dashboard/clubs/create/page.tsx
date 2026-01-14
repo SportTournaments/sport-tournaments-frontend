@@ -128,7 +128,23 @@ export default function CreateClubPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await clubService.createClub(data);
+      // Filter out fields not in CreateClubDto (shortName, address, colors)
+      const clubData = {
+        name: data.name,
+        city: data.city,
+        country: data.country,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        description: data.description,
+        foundedYear: data.foundedYear,
+        website: data.website,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
+        primaryColor: data.primaryColor,
+        secondaryColor: data.secondaryColor,
+      };
+
+      const response = await clubService.createClub(clubData);
       const club = (response as any)?.data || response;
       
       // Upload logo if selected
