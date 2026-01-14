@@ -41,6 +41,18 @@ export default function PotManagementPage() {
     fetchData();
   }, [tournamentId]);
 
+  useEffect(() => {
+    // Update pots when numberOfGroups changes
+    if (pots.length !== numberOfGroups) {
+      const newPots = Array.from({ length: numberOfGroups }, (_, i) => ({
+        potNumber: i + 1,
+        count: 0,
+        teams: [],
+      }));
+      setPots(newPots);
+    }
+  }, [numberOfGroups]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -68,34 +80,33 @@ export default function PotManagementPage() {
   const fetchPotAssignments = async () => {
     try {
       const response = await potDrawService.getPotAssignments(tournamentId);
-      // Backend returns {success: true, data: [...]} so we need response.data.data
-      const potsData = Array.isArray(response.data?.data) 
-        ? response.data.data 
-        : Array.isArray(response.data) 
-          ? response.data 
-          : [];
+      // Backend returns PotResponse[]
+      const potsData = Array.isArray(response.data) 
+        ? response.data 
+        : [];
       
-      // Always set all 4 pots (backend always returns 4 pots)
-      if (potsData.length === 4) {
-        setPots(potsData);
-      } else {
-        // Fallback: Initialize with empty pots
-        setPots([
-          { potNumber: 1, count: 0, teams: [] },
-          { potNumber: 2, count: 0, teams: [] },
-          { potNumber: 3, count: 0, teams: [] },
-          { potNumber: 4, count: 0, teams: [] },
-        ]);
-      }
+      // Always initialize pots based on numberOfGroups, then merge in assignments
+      const newPots = Array.from({ length: numberOfGroups }, (_, i) => {
+        const potNumber = i + 1;
+        const existingPot = potsData.find((p: Pot) => p.potNumber === potNumber);
+        
+        return {
+          potNumber,
+          count: existingPot?.count || 0,
+          teams: existingPot?.teams || [],
+        };
+      });
+      
+      setPots(newPots);
     } catch (err: any) {
       console.error('Failed to fetch pot assignments:', err);
       // Don't set error here as this might be the first time accessing pots
-      setPots([
-        { potNumber: 1, count: 0, teams: [] },
-        { potNumber: 2, count: 0, teams: [] },
-        { potNumber: 3, count: 0, teams: [] },
-        { potNumber: 4, count: 0, teams: [] },
-      ]);
+      const initialPots = Array.from({ length: numberOfGroups }, (_, i) => ({
+        potNumber: i + 1,
+        count: 0,
+        teams: [],
+      }));
+      setPots(initialPots);
     }
   };
 
@@ -166,14 +177,9 @@ export default function PotManagementPage() {
 
   const canExecuteDraw = () => {
     const totalAssigned = getTotalAssigned();
-    const allPotsSameSize = pots.every(
-      (pot) => pot.count === pots[0].count || pot.count === 0
-    );
     return (
       totalAssigned === registrations.length &&
-      totalAssigned > 0 &&
-      allPotsSameSize &&
-      totalAssigned % numberOfGroups === 0
+      totalAssigned > 0
     );
   };
 
@@ -278,12 +284,6 @@ export default function PotManagementPage() {
                       {getTotalAssigned() !== registrations.length && (
                         <li>All teams must be assigned to pots</li>
                       )}
-                      {registrations.length % numberOfGroups !== 0 && (
-                        <li>Total teams ({registrations.length}) must be divisible by number of groups ({numberOfGroups})</li>
-                      )}
-                      {!pots.every((pot) => pot.count === pots[0].count || pot.count === 0) && (
-                        <li>All non-empty pots must have the same number of teams</li>
-                      )}
                     </ul>
                   </div>
                 </div>
@@ -315,7 +315,7 @@ export default function PotManagementPage() {
               `}>
                 <CardTitle className="flex items-center justify-between">
                   <span>Pot {pot.potNumber}</span>
-                  <Badge variant={pot.count > 0 ? 'primary' : 'secondary'}>
+                  <Badge variant={pot.count > 0 ? 'primary' : 'default'}>
                     {pot.count} teams
                   </Badge>
                 </CardTitle>
@@ -373,15 +373,15 @@ export default function PotManagementPage() {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4].map((potNum) => (
+                    <div className="flex gap-2 flex-wrap">
+                      {pots.map((pot) => (
                         <Button
-                          key={potNum}
+                          key={pot.potNumber}
                           size="sm"
-                          variant={assignedPot === potNum ? 'primary' : 'outline'}
-                          onClick={() => handleAssignToPot(reg.id, potNum)}
+                          variant={assignedPot === pot.potNumber ? 'primary' : 'outline'}
+                          onClick={() => handleAssignToPot(reg.id, pot.potNumber)}
                         >
-                          Pot {potNum}
+                          Pot {pot.potNumber}
                         </Button>
                       ))}
                     </div>
