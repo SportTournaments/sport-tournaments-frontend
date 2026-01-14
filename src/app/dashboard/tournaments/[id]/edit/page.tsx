@@ -434,14 +434,17 @@ export default function EditTournamentPage() {
               <CardTitle>{t('tournament.location')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <Input
+                label={t('tournament.location')}
+                error={errors.location?.message}
+                {...register('location')}
+              />
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <LocationAutocomplete
-                    label={t('tournament.location')}
+                    label={t('tournament.locationSearch', 'Search for location')}
                     placeholder="Search for city or venue..."
                     onSelect={handleLocationSelect}
-                    error={errors.location?.message}
-                    required
                   />
                 </div>
                 <div className="flex items-end">

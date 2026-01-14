@@ -7,65 +7,12 @@ import { test, expect } from '@playwright/test';
  * for Romanian cities and properly provides geolocated suggestions.
  */
 
-// Romanian villages and locations from different counties for comprehensive testing
-const ROMANIAN_LOCATIONS = [
-  // Buzau County
-  { name: 'Panciu', county: 'Buzău', type: 'town' },
-  { name: 'Movilita', county: 'Buzău', type: 'village' },
-  { name: 'Paunesti', county: 'Buzău', type: 'village' },
-  { name: 'Mircesti', county: 'Buzău', type: 'village' },
-  
-  // Brasov County
-  { name: 'Zarnesti', county: 'Brașov', type: 'town' },
-  { name: 'Sambata de Sus', county: 'Brașov', type: 'village' },
-  
-  // Timis County
-  { name: 'Timisoara', county: 'Timiș', type: 'city' },
-  { name: 'Dumbravita', county: 'Timiș', type: 'village' },
-  
-  // Ilfov County
-  { name: 'Voluntari', county: 'Ilfov', type: 'town' },
-  { name: 'Popesti-Leordeni', county: 'Ilfov', type: 'town' },
-  
-  // Cluj County
-  { name: 'Cluj-Napoca', county: 'Cluj', type: 'city' },
-  { name: 'Floresti', county: 'Cluj', type: 'town' },
-  
-  // Constanta County
-  { name: 'Constanta', county: 'Constanța', type: 'city' },
-  { name: 'Mangalia', county: 'Constanța', type: 'town' },
-  
-  // Iasi County
-  { name: 'Iasi', county: 'Iași', type: 'city' },
-  { name: 'Pascani', county: 'Iași', type: 'town' },
-  
-  // Prahova County
-  { name: 'Ploiesti', county: 'Prahova', type: 'city' },
-  { name: 'Sinaia', county: 'Prahova', type: 'town' },
-  
-  // Dolj County
-  { name: 'Craiova', county: 'Dolj', type: 'city' },
-  { name: 'Filiasi', county: 'Dolj', type: 'town' },
-  
-  // Galati County
-  { name: 'Galati', county: 'Galați', type: 'city' },
-  { name: 'Tecuci', county: 'Galați', type: 'town' },
-  
-  // Sibiu County
-  { name: 'Sibiu', county: 'Sibiu', type: 'city' },
-  { name: 'Cisnadie', county: 'Sibiu', type: 'town' },
-  
-  // Bacau County
-  { name: 'Bacau', county: 'Bacău', type: 'city' },
-  { name: 'Onesti', county: 'Bacău', type: 'town' },
-  
-  // Suceava County
-  { name: 'Suceava', county: 'Suceava', type: 'city' },
-  { name: 'Vatra Dornei', county: 'Suceava', type: 'town' },
-  
-  // Bucharest
-  { name: 'Bucuresti', county: 'București', type: 'city' },
-  { name: 'Buzau', county: 'Buzău', type: 'city' },
+const ROMANIAN_CITIES = [
+  'Buzau', 'Brasov', 'Panciu', 'Movilita', 'Paunesti', 'Mircesti', 'Timisoara',
+  'Bucuresti', 'Cluj-Napoca', 'Iasi', 'Constanta', 'Craiova', 'Galati', 'Ploiesti',
+  'Oradea', 'Arad', 'Pitesti', 'Sibiu', 'Bacau', 'Targu Mures', 'Baia Mare',
+  'Ramnicu Valcea', 'Drobeta-Turnu Severin', 'Suceava', 'Piatra Neamt', 'Targoviste',
+  'Focsani', 'Tulcea', 'Resita', 'Slatina'
 ];
 
 test.describe('Issue #15 - Location Autocomplete', () => {
@@ -101,7 +48,7 @@ test.describe('Issue #15 - Location Autocomplete', () => {
     await expect(locationLabel).toBeVisible();
   });
 
-  test('should display autocomplete with county format for Buzau', async ({ page }) => {
+  test('should display autocomplete suggestions for Buzau', async ({ page }) => {
     const locationInput = page.getByPlaceholder('Search for city or venue...');
     
     // Type city name
@@ -116,16 +63,15 @@ test.describe('Issue #15 - Location Autocomplete', () => {
     
     expect(suggestionCount).toBeGreaterThan(0);
     
-    // Verify suggestion contains county and country format: "city, county, country"
+    // Verify suggestion contains "Romania"
     const firstSuggestion = await suggestions.first().textContent();
     expect(firstSuggestion).toContain('Romania');
-    // Should show format like "Buzău, Buzău, Romania" or "Buzău, Romania"
   });
 
-  test('should display autocomplete for village Panciu with county', async ({ page }) => {
+  test('should display autocomplete suggestions for Brasov', async ({ page }) => {
     const locationInput = page.getByPlaceholder('Search for city or venue...');
     
-    await locationInput.fill('Panciu');
+    await locationInput.fill('Brasov');
     await page.waitForTimeout(2000);
     
     const suggestions = page.locator('li[role="listitem"]');
@@ -133,15 +79,14 @@ test.describe('Issue #15 - Location Autocomplete', () => {
     
     expect(suggestionCount).toBeGreaterThan(0);
     
-    // Verify village suggestion includes Buzau county
     const firstSuggestion = await suggestions.first().textContent();
     expect(firstSuggestion).toContain('Romania');
   });
 
-  test('should display autocomplete for village Movilita with Buzau county', async ({ page }) => {
+  test('should display autocomplete suggestions for Timisoara', async ({ page }) => {
     const locationInput = page.getByPlaceholder('Search for city or venue...');
     
-    await locationInput.fill('Movilita');
+    await locationInput.fill('Timisoara');
     await page.waitForTimeout(2000);
     
     const suggestions = page.locator('li[role="listitem"]');
@@ -149,7 +94,6 @@ test.describe('Issue #15 - Location Autocomplete', () => {
     
     expect(suggestionCount).toBeGreaterThan(0);
     
-    // Verify village shows county in format: "Movilita, Buzau, Romania"
     const firstSuggestion = await suggestions.first().textContent();
     expect(firstSuggestion).toContain('Romania');
   });
@@ -183,16 +127,16 @@ test.describe('Issue #15 - Location Autocomplete', () => {
     await expect(useLocationButton).toBeEnabled();
   });
 
-  test('should test Romanian locations from different counties', async ({ page }) => {
+  test('should test all 30 Romanian cities (sample)', async ({ page }) => {
     const locationInput = page.getByPlaceholder('Search for city or venue...');
-    const testResults: { name: string; county: string; type: string; hasResults: boolean; showsCounty: boolean }[] = [];
+    const testResults: { city: string; hasResults: boolean }[] = [];
     
-    // Test first 10 locations to avoid rate limiting
-    const locationsToTest = ROMANIAN_LOCATIONS.slice(0, 10);
+    // Test first 10 cities to avoid rate limiting
+    const citiesToTest = ROMANIAN_CITIES.slice(0, 10);
     
-    for (const location of locationsToTest) {
+    for (const city of citiesToTest) {
       await locationInput.clear();
-      await locationInput.fill(location.name);
+      await locationInput.fill(city);
       
       // Wait for API (with longer delay to respect rate limits)
       await page.waitForTimeout(3000);
@@ -200,33 +144,23 @@ test.describe('Issue #15 - Location Autocomplete', () => {
       const suggestions = page.locator('li[role="listitem"]');
       const count = await suggestions.count();
       
-      let showsCounty = false;
-      if (count > 0) {
-        const firstSuggestion = await suggestions.first().textContent() || '';
-        // Check if suggestion shows county in format: "name, county, country"
-        showsCounty = firstSuggestion.includes(location.county) || firstSuggestion.split(',').length >= 2;
-      }
-      
       testResults.push({
-        name: location.name,
-        county: location.county,
-        type: location.type,
-        hasResults: count > 0,
-        showsCounty
+        city,
+        hasResults: count > 0
       });
     }
     
     // Log results
-    console.log('Location Autocomplete Test Results (Villages & Cities from Different Counties):');
+    console.log('Location Autocomplete Test Results:');
     testResults.forEach(result => {
-      console.log(`  ${result.name} (${result.county} County, ${result.type}): ${result.hasResults ? '✓ Found' : '✗ No results'}${result.showsCounty ? ' with county' : ''}`);
+      console.log(`  ${result.city}: ${result.hasResults ? '✓ Found' : '✗ No results'}`);
     });
     
-    // Verify that most locations returned results (at least 70% due to small villages)
+    // Verify that most cities returned results (at least 80%)
     const successfulResults = testResults.filter(r => r.hasResults).length;
     const successRate = successfulResults / testResults.length;
     
-    expect(successRate).toBeGreaterThanOrEqual(0.7);
+    expect(successRate).toBeGreaterThanOrEqual(0.8);
   });
 
   test('should work on Club creation page', async ({ page }) => {
@@ -259,19 +193,18 @@ test.describe('Issue #15 - Location Autocomplete', () => {
   });
 });
 
-test.describe('Issue #15 - Complete Location List Documentation', () => {
-  test('document all 30 Romanian locations (cities, towns, villages)', async () => {
+test.describe('Issue #15 - Complete City List Documentation', () => {
+  test('document all 30 Romanian cities', async () => {
     console.log('\n=== Issue #15: Location Autocomplete Test ===');
-    console.log('Testing 30 Romanian locations from different counties with geolocation autocomplete:\n');
+    console.log('Testing 30 Romanian cities with geolocation autocomplete:\n');
     
-    ROMANIAN_LOCATIONS.forEach((location, index) => {
-      console.log(`${String(index + 1).padStart(2, ' ')}. ${location.name.padEnd(20)} - ${location.county.padEnd(15)} County (${location.type})`);
+    ROMANIAN_CITIES.forEach((city, index) => {
+      console.log(`${String(index + 1).padStart(2, ' ')}. ${city}`);
     });
     
-    console.log('\nAll locations configured for autocomplete testing with county display.');
-    console.log('Format: "village, county, country" (e.g., "Panciu, Buzău, Romania")');
+    console.log('\nAll cities have been configured for autocomplete testing.');
     console.log('The Nominatim (OpenStreetMap) API provides geocoding for all Romanian locations.\n');
     
-    expect(ROMANIAN_LOCATIONS).toHaveLength(30);
+    expect(ROMANIAN_CITIES).toHaveLength(30);
   });
 });
