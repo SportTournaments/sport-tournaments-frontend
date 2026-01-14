@@ -228,7 +228,9 @@ export default function LocationAutocomplete({
             >
               <div className="font-medium">{suggestion.formattedAddress}</div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {suggestion.city}, {suggestion.country}
+                {suggestion.city}
+                {suggestion.region && `, ${suggestion.region}`}
+                {`, ${suggestion.country}`}
               </div>
             </li>
           ))}
