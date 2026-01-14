@@ -120,8 +120,10 @@ export default function CreateTournamentPage() {
         longitude: data.longitude,
         startDate: data.startDate,
         endDate: data.endDate,
-        // Map frontend fields to backend fields
-        registrationDeadline: data.registrationEndDate, // Backend uses registrationDeadline
+        // Map frontend fields to backend fields  
+        registrationStartDate: data.registrationStartDate,
+        registrationEndDate: data.registrationEndDate,
+        registrationDeadline: data.registrationEndDate, // Backward compatibility
         isPrivate: data.isPrivate,
         // Only include rules if provided (as regulationsData)
         ...(data.rules && { regulationsData: { rules: data.rules } }),

@@ -80,12 +80,10 @@ export default function PotManagementPage() {
   const fetchPotAssignments = async () => {
     try {
       const response = await potDrawService.getPotAssignments(tournamentId);
-      // Backend returns {success: true, data: [...]} so we need response.data.data
-      const potsData = Array.isArray(response.data?.data) 
-        ? response.data.data 
-        : Array.isArray(response.data) 
-          ? response.data 
-          : [];
+      // Backend returns PotResponse[]
+      const potsData = Array.isArray(response.data) 
+        ? response.data 
+        : [];
       
       // Always initialize pots based on numberOfGroups, then merge in assignments
       const newPots = Array.from({ length: numberOfGroups }, (_, i) => {
@@ -317,7 +315,7 @@ export default function PotManagementPage() {
               `}>
                 <CardTitle className="flex items-center justify-between">
                   <span>Pot {pot.potNumber}</span>
-                  <Badge variant={pot.count > 0 ? 'primary' : 'secondary'}>
+                  <Badge variant={pot.count > 0 ? 'primary' : 'default'}>
                     {pot.count} teams
                   </Badge>
                 </CardTitle>
