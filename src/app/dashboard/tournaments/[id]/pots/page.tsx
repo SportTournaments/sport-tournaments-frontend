@@ -87,18 +87,19 @@ export default function PotManagementPage() {
           ? response.data 
           : [];
       
-      // Set pots based on potsData or initialize based on numberOfGroups
-      if (potsData.length > 0) {
-        setPots(potsData);
-      } else {
-        // Initialize with empty pots matching numberOfGroups
-        const initialPots = Array.from({ length: numberOfGroups }, (_, i) => ({
-          potNumber: i + 1,
-          count: 0,
-          teams: [],
-        }));
-        setPots(initialPots);
-      }
+      // Always initialize pots based on numberOfGroups, then merge in assignments
+      const newPots = Array.from({ length: numberOfGroups }, (_, i) => {
+        const potNumber = i + 1;
+        const existingPot = potsData.find((p: Pot) => p.potNumber === potNumber);
+        
+        return {
+          potNumber,
+          count: existingPot?.count || 0,
+          teams: existingPot?.teams || [],
+        };
+      });
+      
+      setPots(newPots);
     } catch (err: any) {
       console.error('Failed to fetch pot assignments:', err);
       // Don't set error here as this might be the first time accessing pots
