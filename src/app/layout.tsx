@@ -41,22 +41,8 @@ export default function RootLayout({
   const themeScript = `
     (function() {
       try {
-        const stored = localStorage.getItem('ui-storage');
-        if (stored) {
-          const { state } = JSON.parse(stored);
-          const theme = state?.theme || 'light';
-          const root = document.documentElement;
-          
-          if (theme === 'system') {
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            root.classList.add(systemTheme);
-          } else {
-            root.classList.add(theme);
-          }
-        } else {
-          // Default to light theme if no storage
-          document.documentElement.classList.add('light');
-        }
+        // Always use light theme, ignore system color scheme
+        document.documentElement.classList.add('light');
       } catch (e) {
         // Fallback to light theme on error
         document.documentElement.classList.add('light');

@@ -419,28 +419,6 @@ export default function SettingsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('settings.theme')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <button className="p-4 border-2 border-primary rounded-lg bg-white">
-                  <div className="w-full h-12 bg-gray-100 rounded mb-2"></div>
-                  <span className="text-sm font-medium">{t('settings.themeLight')}</span>
-                </button>
-                <button className="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-900">
-                  <div className="w-full h-12 bg-gray-800 rounded mb-2"></div>
-                  <span className="text-sm font-medium text-white">{t('settings.themeDark')}</span>
-                </button>
-                <button className="p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gradient-to-b from-white to-gray-900">
-                  <div className="w-full h-12 bg-gradient-to-r from-gray-100 to-gray-800 rounded mb-2"></div>
-                  <span className="text-sm font-medium">{t('settings.themeSystem')}</span>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>{t('settings.dangerZone')}</CardTitle>
             </CardHeader>
             <CardContent>

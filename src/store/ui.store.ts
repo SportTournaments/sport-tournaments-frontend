@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import i18n from '@/i18n';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
 type Language = 'en' | 'ro';
 
 interface UIState {
@@ -69,21 +69,14 @@ export const useUIStore = create<UIState>()(
       mobileMenuOpen: false,
 
       setTheme: (theme) => {
-        set({ theme });
+        // Always force light theme, ignore the parameter
+        set({ theme: 'light' });
         
-        // Apply theme to document
+        // Apply light theme to document
         if (typeof document !== 'undefined') {
           const root = document.documentElement;
           root.classList.remove('light', 'dark');
-          
-          if (theme === 'system') {
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light';
-            root.classList.add(systemTheme);
-          } else {
-            root.classList.add(theme);
-          }
+          root.classList.add('light');
         }
       },
 
