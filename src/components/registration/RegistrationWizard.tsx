@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Modal, Alert, Loading, Input } from '@/components/ui';
 import { DocumentUpload } from './DocumentUpload';
 import { registrationService, clubService } from '@/services';
+import { useAuth } from '@/hooks/useAuth';
 import type { Club, Tournament, Registration, RegistrationDocument, DocumentType, ConfirmFitnessDto } from '@/types';
 import { cn } from '@/utils/helpers';
 
@@ -26,6 +27,7 @@ export function RegistrationWizard({
   onSuccess,
 }: RegistrationWizardProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   
   // State
   const [currentStep, setCurrentStep] = useState<WizardStep>('club');
@@ -68,11 +70,11 @@ export function RegistrationWizard({
         setEmergencyContact(selectedClub.phone);
       }
       
-      // Auto-fill coach info from club owner if available
-      if (selectedClub.owner) {
-        const ownerName = `${selectedClub.owner.firstName} ${selectedClub.owner.lastName}`.trim();
-        if (ownerName) {
-          setCoachName(ownerName);
+      // Auto-fill coach name from current user (they are the club owner/organizer)
+      if (user) {
+        const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        if (userName) {
+          setCoachName(userName);
         }
       }
       
@@ -83,12 +85,10 @@ export function RegistrationWizard({
         setCoachPhone(selectedClub.phone);
       }
       
-      // Auto-fill number of players from member count if available
-      if (selectedClub.memberCount && selectedClub.memberCount > 0) {
-        setNumberOfPlayers(selectedClub.memberCount);
-      }
+      // Set default number of players (typical youth team size)
+      setNumberOfPlayers(18);
     }
-  }, [selectedClub]);
+  }, [selectedClub, user]);
 
   // Reset on close
   useEffect(() => {
