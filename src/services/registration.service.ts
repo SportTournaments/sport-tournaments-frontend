@@ -174,7 +174,9 @@ export async function uploadDocument(
   }
   
   // Use fetch directly for multipart/form-data
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  // Import the cookie helper to get the token
+  const { getTokenFromCookie } = await import('@/utils/cookies');
+  const token = getTokenFromCookie('accessToken');
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010/api';
   
   const response = await fetch(`${apiUrl}/v1/registrations/${registrationId}/documents`, {
