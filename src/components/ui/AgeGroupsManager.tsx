@@ -240,12 +240,13 @@ export function AgeGroupsManager({
                     {/* Team Count */}
                     <Input
                       type="number"
-                      label={t('tournaments.ageGroups.teamCount', 'Max Teams')}
+                      label={t('tournaments.ageGroups.teamCount', 'Target Teams')}
                       value={ageGroup.teamCount || ''}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { teamCount: e.target.value ? parseInt(e.target.value) : undefined })}
                       min={2}
                       step={1}
                       disabled={disabled}
+                      helperText={t('tournaments.ageGroups.teamCountHelp', 'Expected number of teams')}
                     />
 
                     {/* Min Teams */}
