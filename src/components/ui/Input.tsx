@@ -83,12 +83,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const errorInputStyles = 'block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-red-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-red-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-red-500/50 dark:placeholder:text-gray-500 dark:focus:outline-red-500';
 
     return (
-      <div className={cn('space-y-2', containerClassName)}>
+      <div className={cn('space-y-1.5', containerClassName)}>
         {label && (
           <label
             htmlFor={inputId}
             className={cn(
-              'block text-sm/6 font-medium text-gray-900 dark:text-white',
+              'block text-sm font-medium text-gray-900 dark:text-white',
               required && "after:content-['*'] after:ml-0.5 after:text-red-500"
             )}
           >
