@@ -30,9 +30,8 @@ export interface AgeGroupFormData {
   birthYear: number;
   displayLabel?: string;
   gameSystem?: string;
-  teamCount?: number;
+  teamCount?: number;  // Target/max number of teams for this category
   minTeams?: number;
-  maxTeams?: number;
   guaranteedMatches?: number;
   startDate?: string;
   endDate?: string;
@@ -265,7 +264,7 @@ export function AgeGroupsManager({
                       min={2}
                       step={1}
                       disabled={disabled}
-                      helperText={t('tournaments.ageGroups.teamCountHelp', 'Expected number of teams')}
+                      helperText={t('tournaments.ageGroups.teamCountHelp', 'Target number of teams for this category')}
                     />
 
                     {/* Min Teams */}
@@ -304,19 +303,6 @@ export function AgeGroupsManager({
                       step={1}
                       disabled={disabled}
                       helperText={t('tournaments.ageGroups.groupsCountHelp', 'Auto-calculated: Total teams ÷ Teams per group')}
-                    />
-
-                    {/* Max Teams */}
-                    <Input
-                      type="number"
-                      label={t('tournaments.ageGroups.maxTeams', 'Max Teams')}
-                      value={ageGroup.maxTeams || ''}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { maxTeams: e.target.value ? parseInt(e.target.value) : undefined })}
-                      min={2}
-                      max={128}
-                      step={1}
-                      disabled={disabled}
-                      helperText={t('tournaments.ageGroups.maxTeamsHelp', 'Maximum teams allowed')}
                     />
 
                     {/* Guaranteed Matches */}

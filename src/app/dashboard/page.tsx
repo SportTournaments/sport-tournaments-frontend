@@ -30,9 +30,10 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
+      // Fetch user's own data, not system-wide data
       const [tournamentsRes, clubsRes, registrationsRes] = await Promise.all([
-        tournamentService.getTournaments({ pageSize: 5 }),
-        clubService.getClubs({ pageSize: 5 }),
+        tournamentService.getMyTournaments(),
+        clubService.getMyClubs(),
         registrationService.getMyRegistrations(),
       ]);
 

@@ -391,6 +391,9 @@ export default function EditClubPage() {
           <Card>
             <CardHeader>
               <CardTitle>{t('common.location')}</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">
+                {t('clubs.locationHelp', 'Search for your location to auto-fill city and country, or enter them manually below.')}
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -398,6 +401,7 @@ export default function EditClubPage() {
                   label={t('common.city')}
                   placeholder="Bucharest"
                   error={errors.city?.message}
+                  helperText={t('clubs.cityHelp', 'Auto-filled from search, or enter manually')}
                   {...register('city')}
                 />
                 <Select
@@ -409,8 +413,9 @@ export default function EditClubPage() {
               </div>
               <Input
                 label={t('common.address')}
-                placeholder="Street address"
+                placeholder="Street address (optional)"
                 error={errors.address?.message}
+                helperText={t('clubs.addressHelp', 'Optional - detailed street address')}
                 {...register('address')}
               />
               <div className="flex flex-col sm:flex-row gap-3">

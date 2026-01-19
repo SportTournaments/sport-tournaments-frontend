@@ -441,12 +441,26 @@ export default function TournamentDetailPage() {
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
-        {/* Back button */}
-        <Link href="/main/tournaments">
-          <Button variant="ghost" className="mb-4">
-            ← {t('common.back')}
-          </Button>
-        </Link>
+        {/* Back button and Edit button for owner */}
+        <div className="flex items-center justify-between mb-4">
+          <Link href="/main/tournaments">
+            <Button variant="ghost">
+              ← {t('common.back')}
+            </Button>
+          </Link>
+          
+          {/* Edit button - only visible to tournament owner */}
+          {isAuthenticated && user?.id === tournament.organizerId && (
+            <Link href={`/dashboard/tournaments/${tournament.id}/edit`}>
+              <Button variant="outline" size="sm">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                {t('common.edit')}
+              </Button>
+            </Link>
+          )}
+        </div>
 
         {/* Header */}
         <div className="relative">

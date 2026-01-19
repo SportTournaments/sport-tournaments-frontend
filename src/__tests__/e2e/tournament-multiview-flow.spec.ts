@@ -48,13 +48,13 @@ test.describe('Tournament Multi-View Flow', () => {
       };
     },
     
-    // Age group data
+    // Age group data - teamCount replaces maxTeams per Issue #50
     ageGroup: {
       birthYear: 2010,
       displayLabel: 'U14 Boys',
       gameSystem: '11v11',
       minTeams: 8,
-      maxTeams: 16,
+      teamCount: 16,  // Target teams (was maxTeams)
       guaranteedMatches: 3,
       participationFee: 150,
     }
@@ -160,9 +160,10 @@ test.describe('Tournament Multi-View Flow', () => {
       await minTeamsInput.fill(TOURNAMENT_DATA.ageGroup.minTeams.toString());
     }
     
-    const maxTeamsInput = page.locator('input[name*="maxTeams"]').last();
-    if (await maxTeamsInput.isVisible()) {
-      await maxTeamsInput.fill(TOURNAMENT_DATA.ageGroup.maxTeams.toString());
+    // Fill teamCount (Target Teams) - replaced maxTeams per Issue #50
+    const teamCountInput = page.locator('input[name*="teamCount"]').last();
+    if (await teamCountInput.isVisible()) {
+      await teamCountInput.fill(TOURNAMENT_DATA.ageGroup.teamCount.toString());
     }
     
     // Scroll to submit button
