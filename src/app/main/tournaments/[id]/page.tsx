@@ -227,6 +227,66 @@ export default function TournamentDetailPage() {
     return variants[status] || 'default';
   };
 
+  // Check if registration is currently open based on dates
+  const isRegistrationOpen = (tournament: Tournament): boolean => {
+    const now = new Date();
+    
+    // Check registration end date first (preferred), then fallback to deadline
+    const registrationEndStr = tournament.registrationEndDate || tournament.registrationDeadline;
+    if (registrationEndStr) {
+      const registrationEnd = new Date(registrationEndStr);
+      // Set to end of day for the deadline date
+      registrationEnd.setHours(23, 59, 59, 999);
+      if (now > registrationEnd) {
+        return false;
+      }
+    }
+    
+    // Check registration start date
+    if (tournament.registrationStartDate) {
+      const registrationStart = new Date(tournament.registrationStartDate);
+      // Set to start of day for the start date
+      registrationStart.setHours(0, 0, 0, 0);
+      if (now < registrationStart) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
+  // Determine the reason registration is not available
+  const getRegistrationClosedReason = (tournament: Tournament): 'notYetOpen' | 'deadlinePassed' | 'statusClosed' | null => {
+    if (tournament.status !== 'PUBLISHED') {
+      return tournament.status === 'ONGOING' || tournament.status === 'COMPLETED' 
+        ? 'statusClosed' 
+        : 'notYetOpen';
+    }
+    
+    const now = new Date();
+    
+    // Check if registration hasn't started yet
+    if (tournament.registrationStartDate) {
+      const registrationStart = new Date(tournament.registrationStartDate);
+      registrationStart.setHours(0, 0, 0, 0);
+      if (now < registrationStart) {
+        return 'notYetOpen';
+      }
+    }
+    
+    // Check if registration deadline has passed
+    const registrationEndStr = tournament.registrationEndDate || tournament.registrationDeadline;
+    if (registrationEndStr) {
+      const registrationEnd = new Date(registrationEndStr);
+      registrationEnd.setHours(23, 59, 59, 999);
+      if (now > registrationEnd) {
+        return 'deadlinePassed';
+      }
+    }
+    
+    return null;
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -604,32 +664,49 @@ export default function TournamentDetailPage() {
                 )}
 
                 {/* Registration button logic */}
-                {tournament.status === 'PUBLISHED' ? (
-                  tournament.isPrivate && !hasValidInvite ? (
-                    // Private tournament without valid invite
-                    <div className="space-y-3">
-                      {validatingInvite ? (
-                        <Button variant="secondary" fullWidth disabled isLoading>
-                          {t('tournament.invitation.validating', 'Validating invite...')}
-                        </Button>
-                      ) : (
-                        <>
-                          <Button variant="secondary" fullWidth disabled>
-                            {t('tournament.invitation.required', 'Invitation Required')}
+                {(() => {
+                  const closedReason = getRegistrationClosedReason(tournament);
+                  
+                  // If registration is closed for any reason
+                  if (closedReason) {
+                    return (
+                      <Button variant="secondary" fullWidth disabled>
+                        {closedReason === 'deadlinePassed' || closedReason === 'statusClosed'
+                          ? t('tournament.registrationClosed')
+                          : t('tournament.registrationNotOpen')}
+                      </Button>
+                    );
+                  }
+                  
+                  // Registration is open - check private tournament logic
+                  if (tournament.isPrivate && !hasValidInvite) {
+                    return (
+                      <div className="space-y-3">
+                        {validatingInvite ? (
+                          <Button variant="secondary" fullWidth disabled isLoading>
+                            {t('tournament.invitation.validating', 'Validating invite...')}
                           </Button>
-                          <p className="text-xs text-center text-gray-500">
-                            {t('tournament.invitation.contactOrganizer', 'Contact the organizer to get an invitation link.')}
-                          </p>
-                          <Link href="/main/tournaments/join" className="block">
-                            <Button variant="outline" fullWidth size="sm">
-                              {t('tournament.invitation.haveCode', 'Have an invitation code?')}
+                        ) : (
+                          <>
+                            <Button variant="secondary" fullWidth disabled>
+                              {t('tournament.invitation.required', 'Invitation Required')}
                             </Button>
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    // Public tournament OR private with valid invite
+                            <p className="text-xs text-center text-gray-500">
+                              {t('tournament.invitation.contactOrganizer', 'Contact the organizer to get an invitation link.')}
+                            </p>
+                            <Link href="/main/tournaments/join" className="block">
+                              <Button variant="outline" fullWidth size="sm">
+                                {t('tournament.invitation.haveCode', 'Have an invitation code?')}
+                              </Button>
+                            </Link>
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  // Public tournament OR private with valid invite - show register button
+                  return (
                     <>
                       <Button
                         variant="primary"
@@ -648,16 +725,10 @@ export default function TournamentDetailPage() {
                         </p>
                       )}
                     </>
-                  )
-                ) : (
-                  <Button variant="secondary" fullWidth disabled>
-                    {tournament.status === 'ONGOING' || tournament.status === 'COMPLETED'
-                      ? t('tournament.registrationClosed')
-                      : t('tournament.registrationNotOpen')}
-                  </Button>
-                )}
+                  );
+                })()}
 
-                {!isAuthenticated && tournament.status === 'PUBLISHED' && (
+                {!isAuthenticated && tournament.status === 'PUBLISHED' && isRegistrationOpen(tournament) && (
                   <p className="text-xs text-center text-gray-500 mt-2">
                     {t('tournament.loginToRegister')}
                   </p>
