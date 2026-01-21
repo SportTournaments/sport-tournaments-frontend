@@ -1,17 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { MainLayout } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Button, Tabs, Loading, Alert, Avatar, Badge, ClubColorBadge, ClubColorBanner } from '@/components/ui';
 import { clubService } from '@/services';
 import { Club, Team } from '@/types';
+import { useAuthStore } from '@/store';
 
 export default function ClubDetailPage() {
   const { id } = useParams();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const isPreviewMode = searchParams.get('preview') === 'true';
   const [loading, setLoading] = useState(true);
   const [club, setClub] = useState<Club | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -65,6 +69,13 @@ export default function ClubDetailPage() {
       </MainLayout>
     );
   }
+
+  const isOwner = !!user && (
+    user.id === club.ownerId ||
+    user.id === club.owner?.id ||
+    user.id === club.organizerId ||
+    user.id === club.organizer?.id
+  );
 
   const tabs = [
     {
@@ -281,11 +292,23 @@ export default function ClubDetailPage() {
 
         <div className="container mx-auto px-4 py-8">
           {/* Back button */}
-          <Link href="/main/clubs">
-            <Button variant="ghost" className="mb-4">
-              ← {t('common.back')}
-            </Button>
-          </Link>
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/main/clubs">
+              <Button variant="ghost" className="mb-4">
+                ← {t('common.back')}
+              </Button>
+            </Link>
+            {isPreviewMode && isOwner && (
+              <Link href={`/dashboard/clubs/${club.id}/edit`}>
+                <Button variant="primary" size="sm" className="mb-4">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  {t('common.edit')}
+                </Button>
+              </Link>
+            )}
+          </div>
 
           {/* Header (fallback when no colors) */}
           {!(club.primaryColor || club.secondaryColor) && (
