@@ -22,8 +22,15 @@ export interface Club {
   isPremium: boolean;
   memberCount?: number;
   teamCount?: number;
-  ownerId: string;
+  ownerId?: string;
   owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  organizerId?: string;
+  organizer?: {
     id: string;
     firstName: string;
     lastName: string;
