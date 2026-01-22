@@ -203,7 +203,12 @@ export default function EditTournamentPage() {
       // Update age groups if any changes
       if (ageGroups.length > 0 || (tournament?.ageGroups && tournament.ageGroups.length > 0)) {
         try {
-          await tournamentService.updateTournamentAgeGroups(params.id as string, ageGroups);
+          // Strip out fields that are not allowed in UpdateAgeGroupDto
+          const sanitizedAgeGroups = ageGroups.map(ag => {
+            const { minTeams, maxTeams, numberOfMatches, guaranteedMatches, participationFee, ...allowed } = ag as any;
+            return allowed;
+          });
+          await tournamentService.updateTournamentAgeGroups(params.id as string, sanitizedAgeGroups);
         } catch (ageGroupErr) {
           console.error('Failed to update age groups:', ageGroupErr);
           // Don't fail the whole update, just warn
