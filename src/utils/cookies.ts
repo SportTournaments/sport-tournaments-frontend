@@ -66,9 +66,12 @@ export function setTokenCookie(
   tokenName: 'accessToken' | 'refreshToken',
   token: string
 ): void {
-  const maxAge = tokenName === 'accessToken' 
+  const defaultMaxAge = tokenName === 'accessToken' 
     ? 60 * 15 // 15 minutes for access token
     : 60 * 60 * 24 * 7; // 7 days for refresh token
+  
+  const tokenMaxAge = getTokenMaxAge(token);
+  const maxAge = tokenMaxAge ?? defaultMaxAge;
   
   setCookie(tokenName, token, { maxAge });
 }
@@ -80,4 +83,34 @@ export function removeTokenCookie(tokenName: 'accessToken' | 'refreshToken'): vo
 export function clearAllTokens(): void {
   removeTokenCookie('accessToken');
   removeTokenCookie('refreshToken');
+}
+
+// JWT helpers
+function getTokenMaxAge(token: string): number | null {
+  const exp = getJwtExp(token);
+  if (!exp) return null;
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const maxAge = exp - nowSeconds;
+  return maxAge > 0 ? maxAge : null;
+}
+
+function getJwtExp(token: string): number | null {
+  try {
+    const [, payload] = token.split('.');
+    if (!payload) return null;
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const parsed = JSON.parse(json) as { exp?: number };
+    return typeof parsed.exp === 'number' ? parsed.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(token: string | null, skewSeconds = 30): boolean {
+  if (!token) return true;
+  const exp = getJwtExp(token);
+  if (!exp) return false;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  return exp - skewSeconds <= nowSeconds;
 }
