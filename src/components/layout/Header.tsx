@@ -10,6 +10,7 @@ import { cn } from '@/utils/helpers';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { mobileMenuOpen, toggleMobileMenu, setMobileMenuOpen } = useUIStore();
