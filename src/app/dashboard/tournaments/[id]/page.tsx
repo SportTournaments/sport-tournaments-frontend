@@ -164,6 +164,17 @@ export default function TournamentDetailPage() {
     );
   }
 
+  const derivedMaxTeams = tournament.maxTeams ?? tournament.ageGroups?.reduce((total, ageGroup) => {
+    const ageGroupMaxTeams = ageGroup.teamCount
+      ?? ageGroup.maxTeams
+      ?? (ageGroup.teamsPerGroup && ageGroup.groupsCount
+        ? ageGroup.teamsPerGroup * ageGroup.groupsCount
+        : 0);
+    return total + (ageGroupMaxTeams || 0);
+  }, 0);
+  const maxTeamsDisplay = derivedMaxTeams && derivedMaxTeams > 0 ? derivedMaxTeams : 0;
+  const registeredTeamsDisplay = tournament.registeredTeams ?? registrations.length ?? 0;
+
   const tabs = [
     {
       id: 'overview',
@@ -176,7 +187,7 @@ export default function TournamentDetailPage() {
               <CardContent className="p-3 sm:p-4 text-center">
                 <p className="text-xs sm:text-sm text-gray-500">{t('common.teams')}</p>
                 <p className="text-xl sm:text-2xl font-bold text-primary">
-                  {tournament.registeredTeams || 0} / {tournament.maxTeams}
+                  {registeredTeamsDisplay} / {maxTeamsDisplay}
                 </p>
               </CardContent>
             </Card>
