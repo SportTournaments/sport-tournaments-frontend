@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import type { User } from '@/types';
 import { authService } from '@/services';
-import { clearAllTokens } from '@/utils/cookies';
+import { clearAllTokens, getTokenFromCookie, isTokenExpired } from '@/utils/cookies';
 import { getApiErrorMessage } from '@/utils/helpers';
 
 
@@ -168,6 +168,20 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      onRehydrateStorage: () => (state) => {
+        const accessToken = getTokenFromCookie('accessToken');
+        const refreshToken = getTokenFromCookie('refreshToken');
+        const refreshExpired = isTokenExpired(refreshToken);
+
+        if (!accessToken && !refreshToken) {
+          state?.clearAuth?.();
+          return;
+        }
+
+        if (refreshExpired) {
+          state?.clearAuth?.();
+        }
+      },
       storage: {
         getItem: (name) => {
           const storage = createSafeStorage();

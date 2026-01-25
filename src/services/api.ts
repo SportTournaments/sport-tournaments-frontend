@@ -19,6 +19,38 @@ let failedQueue: Array<{
   reject: (reason: unknown) => void;
 }> = [];
 
+const getPersistedAuthState = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem('auth-storage');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: { isAuthenticated?: boolean } };
+    return parsed.state ?? null;
+  } catch {
+    return null;
+  }
+};
+
+const clearClientAuthState = () => {
+  clearAllTokens();
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.removeItem('auth-storage');
+    } catch {
+      // ignore storage errors
+    }
+  }
+};
+
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return;
+  const currentPath = window.location.pathname;
+  if (currentPath !== '/auth/login') {
+    window.sessionStorage.setItem('redirectAfterLogin', currentPath);
+  }
+  window.location.href = '/auth/login';
+};
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -58,7 +90,7 @@ api.interceptors.response.use(
   async (error: AxiosError<ApiError>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
-    // Handle 403 Forbidden - log for debugging
+    // Handle 403 Forbidden - auto logout
     if (error.response?.status === 403) {
       console.error('403 Forbidden Error:', {
         url: originalRequest.url,
@@ -66,6 +98,13 @@ api.interceptors.response.use(
         headers: originalRequest.headers,
         data: error.response.data,
       });
+
+      const hadAuthToken = originalRequest.headers.Authorization;
+      const persistedAuth = getPersistedAuthState();
+      if (hadAuthToken || persistedAuth?.isAuthenticated) {
+        clearClientAuthState();
+        redirectToLogin();
+      }
     }
     
     // Handle 401 Unauthorized
@@ -75,7 +114,12 @@ api.interceptors.response.use(
       const hadAuthToken = originalRequest.headers.Authorization;
       
       if (!hadAuthToken) {
-        // User was never logged in, just reject the error without redirecting
+        // If auth state says logged in but token is missing, auto logout
+        const persistedAuth = getPersistedAuthState();
+        if (persistedAuth?.isAuthenticated) {
+          clearClientAuthState();
+          redirectToLogin();
+        }
         return Promise.reject(error);
       }
       
@@ -133,16 +177,8 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         
         // Clear tokens and redirect to login
-        clearAllTokens();
-        
-        if (typeof window !== 'undefined') {
-          // Store the current URL for redirect after login
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/auth/login') {
-            sessionStorage.setItem('redirectAfterLogin', currentPath);
-          }
-          window.location.href = '/auth/login';
-        }
+        clearClientAuthState();
+        redirectToLogin();
         
         return Promise.reject(refreshError);
       } finally {
