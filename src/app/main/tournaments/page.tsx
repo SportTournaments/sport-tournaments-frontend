@@ -9,6 +9,7 @@ import { tournamentService } from '@/services';
 import { formatDistance } from '@/services/location.service';
 import { Tournament, TournamentStatus, GeolocationFilters } from '@/types';
 import { formatDate } from '@/utils/date';
+import { getTournamentPublicPath } from '@/utils/helpers';
 import { useDebounce, useInfiniteScroll } from '@/hooks';
 
 const PAGE_SIZE = 12;
@@ -512,7 +513,7 @@ export default function TournamentsPage() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {tournaments.map((tournament) => (
-                <Link key={tournament.id} href={`/main/tournaments/${tournament.id}`}>
+                <Link key={tournament.id} href={getTournamentPublicPath(tournament)}>
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                     {tournament.bannerImage && (
                       <div className="relative h-40 bg-white border-b border-gray-200 rounded-t-lg overflow-hidden">

@@ -10,7 +10,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badg
 import { tournamentService, registrationService, fileService } from '@/services';
 import type { Tournament, Registration, TournamentStatus, RegistrationStatus } from '@/types';
 import { formatDate, formatDateTime } from '@/utils/date';
-import { formatCurrency } from '@/utils/helpers';
+import { formatCurrency, getTournamentPublicPath } from '@/utils/helpers';
 
 export default function TournamentDetailPage() {
   const { t } = useTranslation();
@@ -523,7 +523,7 @@ export default function TournamentDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Link href={`/main/tournaments/${tournament.id}?preview=true`}>
+            <Link href={`${getTournamentPublicPath(tournament)}?preview=true`}>
               <Button variant="outline">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

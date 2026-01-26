@@ -26,6 +26,7 @@ import {
   getHours
 } from 'date-fns';
 import { Tournament } from '@/types';
+import { getTournamentPublicPath } from '@/utils/helpers';
 import Badge from './Badge';
 
 type CalendarView = 'month' | 'week' | 'day';
@@ -342,7 +343,7 @@ export function TournamentCalendar({ tournaments, className }: TournamentCalenda
                   {dayTournaments.map((tournament) => (
                     <Link
                       key={tournament.id}
-                      href={`/main/tournaments/${tournament.id}`}
+                      href={getTournamentPublicPath(tournament)}
                       className="block p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
                     >
                       <div className="flex items-start justify-between">
@@ -387,7 +388,7 @@ export function TournamentCalendar({ tournaments, className }: TournamentCalenda
               {selectedDateTournaments.map((tournament) => (
                 <Link
                   key={tournament.id}
-                  href={`/main/tournaments/${tournament.id}`}
+                  href={getTournamentPublicPath(tournament)}
                   className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-start justify-between">

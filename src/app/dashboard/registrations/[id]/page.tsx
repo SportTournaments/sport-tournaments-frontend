@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Alert, Loading
 import { registrationService, tournamentService } from '@/services';
 import type { Registration, Tournament, RegistrationStatus, PaymentStatus } from '@/types';
 import { formatDateTime, formatDate } from '@/utils/date';
-import { formatCurrency } from '@/utils/helpers';
+import { formatCurrency, getTournamentPublicPath } from '@/utils/helpers';
 
 export default function RegistrationDetailPage() {
   const { t } = useTranslation();
@@ -201,7 +201,7 @@ export default function RegistrationDetailPage() {
                 )}
                 <div className="flex-1">
                   <Link
-                    href={`/main/tournaments/${tournament.id}`}
+                    href={getTournamentPublicPath(tournament)}
                     className="font-semibold text-lg text-gray-900 hover:text-primary"
                   >
                     {tournament.name}
@@ -213,7 +213,7 @@ export default function RegistrationDetailPage() {
                     {formatDate(tournament.startDate)} - {formatDate(tournament.endDate)}
                   </p>
                 </div>
-                <Link href={`/main/tournaments/${tournament.id}`}>
+                <Link href={getTournamentPublicPath(tournament)}>
                   <Button variant="outline" size="sm">{t('common.view')}</Button>
                 </Link>
               </div>

@@ -12,9 +12,11 @@ import type { AgeGroupFormData } from '@/components/ui';
 import { tournamentService, fileService } from '@/services';
 import { getCurrentLocation } from '@/services/location.service';
 import type { LocationSuggestion } from '@/types';
+import { slugify, getTournamentPublicPath } from '@/utils/helpers';
 
 const tournamentSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(100),
+  urlSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase letters, numbers, and hyphens only').optional().or(z.literal('')),
   description: z.string().min(10, 'Description must be at least 10 characters').max(2000),
   location: z.string().min(2, 'Location is required'),
   latitude: z.coerce.number().optional(),
@@ -36,6 +38,7 @@ export default function CreateTournamentPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
   const errorRef = useRef<HTMLDivElement>(null);
   const initialAgeGroupsRef = useRef<string>('[]');
   const pendingNavigationRef = useRef<null | (() => void)>(null);
@@ -72,6 +75,7 @@ export default function CreateTournamentPage() {
   });
 
   const isPrivate = watch('isPrivate');
+  const watchedName = watch('name');
   const watchedStartDate = watch('startDate');
   const watchedEndDate = watch('endDate');
   const hasUnsavedAgeGroups = useMemo(() => {
@@ -81,6 +85,12 @@ export default function CreateTournamentPage() {
     return !!bannerFile || !!regulationsFile;
   }, [bannerFile, regulationsFile]);
   const hasUnsavedChanges = isDirty || hasUnsavedAgeGroups || hasUnsavedFiles;
+
+  useEffect(() => {
+    if (slugTouched) return;
+    const generatedSlug = watchedName ? slugify(watchedName) : '';
+    setValue('urlSlug', generatedSlug, { shouldDirty: !!generatedSlug });
+  }, [watchedName, slugTouched, setValue]);
 
   const getLeaveMessage = useCallback(
     () => t('common.unsavedChangesPrompt', 'You have unsaved changes. Are you sure you want to leave this page?'),
@@ -184,6 +194,7 @@ export default function CreateTournamentPage() {
       // Transform frontend field names to backend DTO field names
       const tournamentData = {
         name: data.name,
+        urlSlug: data.urlSlug?.trim() || undefined,
         description: data.description,
         location: data.location,
         latitude: data.latitude,
@@ -225,7 +236,11 @@ export default function CreateTournamentPage() {
       }
 
       // Redirect to tournament preview page
-      router.push(`/main/tournaments/${tournamentId}`);
+      if (response.data) {
+        router.push(getTournamentPublicPath(response.data));
+      } else if (tournamentId) {
+        router.push(`/main/tournaments/${tournamentId}`);
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create tournament';
       setError(errorMessage);
@@ -293,6 +308,20 @@ export default function CreateTournamentPage() {
                 placeholder={t('tournament.namePlaceholder')}
                 error={errors.name?.message}
                 {...register('name')}
+              />
+
+              <Input
+                label={t('tournament.slug', 'Tournament URL Slug')}
+                placeholder={t('tournament.slugPlaceholder', 'e.g. summer-youth-cup-2025')}
+                helperText={t('tournament.slugHelp', 'Auto-generated from the title; you can edit it.')}
+                error={errors.urlSlug?.message}
+                {...register('urlSlug', {
+                  onChange: () => setSlugTouched(true),
+                  onBlur: (event) => {
+                    const nextSlug = slugify(event.target.value || '');
+                    setValue('urlSlug', nextSlug, { shouldDirty: true });
+                  },
+                })}
               />
 
               <Textarea

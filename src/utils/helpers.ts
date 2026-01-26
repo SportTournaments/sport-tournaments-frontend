@@ -70,6 +70,11 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+export function getTournamentPublicPath(tournament: { id: string; urlSlug?: string | null }): string {
+  const slug = tournament.urlSlug?.trim();
+  return `/main/tournaments/${slug || tournament.id}`;
+}
+
 // Get initials from name
 export function getInitials(
   firstName?: string,
