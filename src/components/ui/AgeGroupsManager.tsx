@@ -20,18 +20,16 @@ const GAME_SYSTEMS = [
   { value: '10+1', label: '10+1 (11-a-side)' },
 ];
 
-// Number of groups options (1 to 16)
-const GROUPS_COUNT_OPTIONS = Array.from({ length: 16 }, (_, i) => {
-  const count = i + 1;
-  return {
-    value: count.toString(),
-    label: count === 1 ? '1 Group' : `${count} Groups`,
-  };
-});
-
 const AGE_CATEGORY_OPTIONS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'U21', 'SENIOR', 'VETERANS'] as const;
 const TOURNAMENT_LEVELS = ['I', 'II', 'III'] as const;
 const TOURNAMENT_FORMATS = ['SINGLE_ELIMINATION', 'DOUBLE_ELIMINATION', 'ROUND_ROBIN', 'GROUPS_PLUS_KNOCKOUT', 'LEAGUE'] as const;
+const GROUPS_COUNT_OPTIONS = Array.from({ length: 16 }, (_, i) => {
+  const value = i + 1;
+  return {
+    value: value.toString(),
+    label: value === 1 ? '1 Group' : `${value} Groups`,
+  };
+});
 
 // Generate birth years from 2005 to current year
 const currentYear = new Date().getFullYear();
@@ -340,12 +338,16 @@ export function AgeGroupsManager({
                       helperText={t('tournaments.ageGroups.teamsPerGroupHelp', 'Usually 4 teams per group')}
                     />
 
-                    {/* Number of Groups - Changed to dropdown per issue #117 */}
+                    {/* Number of Groups - moved here per issue #73 */}
                     <Select
                       label={t('tournaments.ageGroups.groupsCount', 'Number of Groups')}
                       options={GROUPS_COUNT_OPTIONS}
-                      value={ageGroup.groupsCount?.toString() || '1'}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) => handleUpdateAgeGroup(index, { groupsCount: e.target.value ? parseInt(e.target.value) : 1 })}
+                      value={(ageGroup.groupsCount ?? 1).toString()}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        handleUpdateAgeGroup(index, {
+                          groupsCount: e.target.value ? parseInt(e.target.value) : undefined,
+                        })
+                      }
                       disabled={disabled}
                       helperText={t('tournaments.ageGroups.groupsCountHelp', 'Auto-calculated: Total teams ÷ Teams per group')}
                     />
