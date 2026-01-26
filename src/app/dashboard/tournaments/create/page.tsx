@@ -603,7 +603,11 @@ export default function CreateTournamentPage() {
             {t('common.ok', 'OK')}
           </Button>
         )}
-      />
+      >
+        <div className="text-sm text-gray-600">
+          {error}
+        </div>
+      </Modal>
     </DashboardLayout>
   );
 }
