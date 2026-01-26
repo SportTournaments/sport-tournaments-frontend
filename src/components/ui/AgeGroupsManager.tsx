@@ -23,6 +23,13 @@ const GAME_SYSTEMS = [
 const AGE_CATEGORY_OPTIONS = ['U8', 'U10', 'U12', 'U14', 'U16', 'U18', 'U21', 'SENIOR', 'VETERANS'] as const;
 const TOURNAMENT_LEVELS = ['I', 'II', 'III'] as const;
 const TOURNAMENT_FORMATS = ['SINGLE_ELIMINATION', 'DOUBLE_ELIMINATION', 'ROUND_ROBIN', 'GROUPS_PLUS_KNOCKOUT', 'LEAGUE'] as const;
+const GROUPS_COUNT_OPTIONS = Array.from({ length: 16 }, (_, i) => {
+  const value = i + 1;
+  return {
+    value: value.toString(),
+    label: value === 1 ? '1 Group' : `${value} Groups`,
+  };
+});
 
 // Generate birth years from 2005 to current year
 const currentYear = new Date().getFullYear();
@@ -66,7 +73,7 @@ const defaultAgeGroup: Omit<AgeGroupFormData, 'birthYear'> = {
   gameSystem: '7+1',
   teamCount: 16,
   teamsPerGroup: 4,
-  groupsCount: 4,
+  groupsCount: 1,
 };
 
 export function AgeGroupsManager({
@@ -332,14 +339,15 @@ export function AgeGroupsManager({
                     />
 
                     {/* Number of Groups - moved here per issue #73 */}
-                    <Input
-                      type="number"
+                    <Select
                       label={t('tournaments.ageGroups.groupsCount', 'Number of Groups')}
-                      value={ageGroup.groupsCount || ''}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { groupsCount: e.target.value ? parseInt(e.target.value) : undefined })}
-                      min={1}
-                      max={16}
-                      step={1}
+                      options={GROUPS_COUNT_OPTIONS}
+                      value={(ageGroup.groupsCount ?? 1).toString()}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                        handleUpdateAgeGroup(index, {
+                          groupsCount: e.target.value ? parseInt(e.target.value) : undefined,
+                        })
+                      }
                       disabled={disabled}
                       helperText={t('tournaments.ageGroups.groupsCountHelp', 'Auto-calculated: Total teams ÷ Teams per group')}
                     />
