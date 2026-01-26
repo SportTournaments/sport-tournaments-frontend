@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store';
 import { tournamentService, clubService, registrationService } from '@/services';
 import { Tournament, Club, Registration } from '@/types';
 import { formatDate } from '@/utils/date';
+import { getTournamentPublicPath } from '@/utils/helpers';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -243,7 +244,7 @@ export default function DashboardPage() {
                   {recentTournaments.map((tournament) => (
                     <li key={tournament.id}>
                       <Link
-                        href={`/main/tournaments/${tournament.id}`}
+                        href={getTournamentPublicPath(tournament)}
                         className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors"
                       >
                         <div>

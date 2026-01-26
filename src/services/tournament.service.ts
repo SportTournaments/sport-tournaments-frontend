@@ -58,6 +58,11 @@ export async function getTournamentById(id: string): Promise<ApiResponse<Tournam
   return apiGet<ApiResponse<Tournament>>(`${TOURNAMENTS_BASE}/${id}`);
 }
 
+// Get tournament by slug
+export async function getTournamentBySlug(slug: string): Promise<ApiResponse<Tournament>> {
+  return apiGet<ApiResponse<Tournament>>(`${TOURNAMENTS_BASE}/slug/${slug}`);
+}
+
 // Create a new tournament
 export async function createTournament(
   data: CreateTournamentDto
@@ -177,6 +182,7 @@ export const tournamentService = {
   getUpcomingTournaments,
   getMyTournaments,
   getTournamentById,
+  getTournamentBySlug,
   createTournament,
   updateTournament,
   adminUpdateTournament,

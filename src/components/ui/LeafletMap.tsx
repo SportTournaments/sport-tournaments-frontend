@@ -8,6 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import { Tournament } from '@/types';
 import Badge from './Badge';
 import { formatDate } from '@/utils/date';
+import { getTournamentPublicPath } from '@/utils/helpers';
 
 // Fix for default marker icon in Leaflet with bundlers
 const customIcon = L.icon({
@@ -67,6 +68,7 @@ export default function LeafletMap({
     // Add markers
     const markers: L.Marker[] = [];
     tournaments.forEach((tournament) => {
+      const tournamentPath = getTournamentPublicPath(tournament);
       const marker = L.marker(
         [tournament.latitude as number, tournament.longitude as number],
         { icon: customIcon }
@@ -83,7 +85,7 @@ export default function LeafletMap({
             ${tournament.status}
           </span>
           <br/>
-          <a href="/main/tournaments/${tournament.id}" style="display: inline-block; padding: 6px 12px; font-size: 14px; font-weight: 500; color: white; background-color: #2563EB; border-radius: 4px; text-decoration: none;">
+          <a href="${tournamentPath}" style="display: inline-block; padding: 6px 12px; font-size: 14px; font-weight: 500; color: white; background-color: #2563EB; border-radius: 4px; text-decoration: none;">
             ${t('common.viewDetails', 'View Details')}
           </a>
         </div>

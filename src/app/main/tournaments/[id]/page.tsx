@@ -33,6 +33,9 @@ export default function TournamentDetailPage() {
   const [hasValidInvite, setHasValidInvite] = useState(false);
   const [validatingInvite, setValidatingInvite] = useState(false);
 
+  const isUuid = (value: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+
   // Handle downloading/viewing regulations PDF
   const handleDownloadRegulations = async () => {
     if (!tournament?.regulationsDocument) return;
@@ -93,12 +96,15 @@ export default function TournamentDetailPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await tournamentService.getTournamentById(id as string);
+      const rawId = id as string;
+      const response = isUuid(rawId)
+        ? await tournamentService.getTournamentById(rawId)
+        : await tournamentService.getTournamentBySlug(rawId);
       setTournament(response.data);
 
       // Fetch registrations for this tournament
       try {
-        const regsResponse = await registrationService.getTournamentRegistrations(id as string, {
+        const regsResponse = await registrationService.getTournamentRegistrations(response.data.id, {
           status: 'APPROVED' as any,
         });
         const items = regsResponse?.data?.items;

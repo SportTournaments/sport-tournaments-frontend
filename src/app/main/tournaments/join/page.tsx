@@ -8,6 +8,7 @@ import { MainLayout } from '@/components/layout';
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Alert } from '@/components/ui';
 import { tournamentService } from '@/services';
 import { useAuthStore } from '@/store';
+import { getTournamentPublicPath } from '@/utils/helpers';
 
 interface TournamentInfo {
   id: string;
@@ -88,12 +89,12 @@ export default function JoinTournamentPage() {
 
     if (!isAuthenticated) {
       // Redirect to login with return URL
-      router.push(`/auth/login?returnUrl=/main/tournaments/${tournament.id}?invite=${code}`);
+      router.push(`/auth/login?returnUrl=${getTournamentPublicPath(tournament)}?invite=${code}`);
       return;
     }
 
     // Go to tournament page with invite code
-    router.push(`/main/tournaments/${tournament.id}?invite=${code}`);
+    router.push(`${getTournamentPublicPath(tournament)}?invite=${code}`);
   };
 
   return (

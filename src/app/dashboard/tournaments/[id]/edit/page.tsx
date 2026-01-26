@@ -14,12 +14,14 @@ import { getCurrentLocation } from '@/services/location.service';
 import { Tournament } from '@/types';
 import type { LocationSuggestion } from '@/types';
 import { formatDateForInput } from '@/utils/date';
+import { slugify } from '@/utils/helpers';
 
 // Define value arrays for runtime use
 const TOURNAMENT_STATUSES = ['PUBLISHED', 'ONGOING', 'COMPLETED', 'CANCELLED'] as const;
 
 const tournamentSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
+  urlSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase letters, numbers, and hyphens only').optional().or(z.literal('')),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
@@ -68,6 +70,7 @@ export default function EditTournamentPage() {
   const [hasExistingRegulations, setHasExistingRegulations] = useState(false);
   const [ageGroups, setAgeGroups] = useState<AgeGroupFormData[]>([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
 
   const {
     register,
@@ -82,6 +85,7 @@ export default function EditTournamentPage() {
 
   const isPrivate = watch('isPrivate');
   const watchedLocation = watch('location');
+  const watchedName = watch('name');
   const hasUnsavedAgeGroups = useMemo(() => {
     if (!initialAgeGroupsRef.current) return false;
     return initialAgeGroupsRef.current !== JSON.stringify(ageGroups);
@@ -91,6 +95,12 @@ export default function EditTournamentPage() {
     return hasExistingRegulations !== initialHasRegulationsRef.current;
   }, [regulationsFile, hasExistingRegulations]);
   const hasUnsavedChanges = isDirty || hasUnsavedAgeGroups || hasUnsavedRegulations;
+
+  useEffect(() => {
+    if (slugTouched) return;
+    const generatedSlug = watchedName ? slugify(watchedName) : '';
+    setValue('urlSlug', generatedSlug, { shouldDirty: !!generatedSlug });
+  }, [watchedName, slugTouched, setValue]);
 
   const getLeaveMessage = useCallback(
     () => t('common.unsavedChangesPrompt', 'You have unsaved changes. Are you sure you want to leave this page?'),
@@ -213,6 +223,7 @@ export default function EditTournamentPage() {
       initialHasRegulationsRef.current = !!data.regulationsDocument;
       reset({
         name: data.name,
+        urlSlug: data.urlSlug || '',
         description: data.description,
         startDate: formatDateForInput(data.startDate),
         endDate: formatDateForInput(data.endDate),
@@ -228,6 +239,7 @@ export default function EditTournamentPage() {
         status: data.status === 'DRAFT' ? 'PUBLISHED' : data.status,
         isPrivate: (data as any).isPrivate || false,
       });
+      setSlugTouched(!!data.urlSlug);
     } catch (err: any) {
       setError('Failed to load tournament');
     } finally {
@@ -243,6 +255,7 @@ export default function EditTournamentPage() {
       // Backend doesn't accept: venue, city, minTeams, format, entryFee, prizeMoney, rules
       const updateData = {
         name: data.name,
+        ...(data.urlSlug && data.urlSlug.trim() !== '' && { urlSlug: data.urlSlug.trim() }),
         description: data.description,
         startDate: data.startDate,
         endDate: data.endDate,
@@ -419,6 +432,19 @@ export default function EditTournamentPage() {
                 label={t('tournament.name')}
                 error={errors.name?.message}
                 {...register('name')}
+              />
+              <Input
+                label={t('tournament.slug', 'Tournament URL Slug')}
+                placeholder={t('tournament.slugPlaceholder', 'e.g. summer-youth-cup-2025')}
+                helperText={t('tournament.slugHelp', 'Auto-generated from the title; you can edit it.')}
+                error={errors.urlSlug?.message}
+                {...register('urlSlug', {
+                  onChange: () => setSlugTouched(true),
+                  onBlur: (event) => {
+                    const nextSlug = slugify(event.target.value || '');
+                    setValue('urlSlug', nextSlug, { shouldDirty: true });
+                  },
+                })}
               />
               <Textarea
                 label={t('tournament.description')}

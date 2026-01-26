@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '@/components/layout';
 import { Card, CardContent, Button, Badge, Loading, Modal } from '@/components/ui';
+import { getTournamentPublicPath } from '@/utils/helpers';
 import { registrationService } from '@/services';
 import type { Registration, RegistrationStatus } from '@/types';
 import { formatDateTime } from '@/utils/date';
@@ -201,7 +202,7 @@ export default function RegistrationsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <Link
-                            href={`/main/tournaments/${registration.tournamentId}`}
+                            href={registration.tournament ? getTournamentPublicPath(registration.tournament) : `/main/tournaments/${registration.tournamentId}`}
                             className="font-semibold text-lg text-gray-900 hover:text-primary"
                           >
                             {registration.tournament?.name || 'Tournament'}
