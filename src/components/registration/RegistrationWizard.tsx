@@ -13,6 +13,7 @@ interface RegistrationWizardProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: (registration: Registration) => void;
+  initialAgeGroupId?: string;
 }
 
 type WizardStep = 'club' | 'fitness' | 'review';
@@ -24,6 +25,7 @@ export function RegistrationWizard({
   isOpen,
   onClose,
   onSuccess,
+  initialAgeGroupId,
 }: RegistrationWizardProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -58,6 +60,12 @@ export function RegistrationWizard({
       fetchClubs();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && initialAgeGroupId) {
+      setSelectedAgeGroupId(initialAgeGroupId);
+    }
+  }, [isOpen, initialAgeGroupId]);
 
   // Auto-fill fields when club is selected
   useEffect(() => {

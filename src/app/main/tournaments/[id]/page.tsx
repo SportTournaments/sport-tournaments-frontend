@@ -10,7 +10,7 @@ import { tournamentService, registrationService, clubService, fileService } from
 import { Tournament, TournamentStatus, Registration, Club } from '@/types';
 import { formatDate, formatDateTime } from '@/utils/date';
 import { useAuthStore } from '@/store';
-import { RegistrationWizard, RegistrationStatus } from '@/components/registration';
+import { RegistrationWizard } from '@/components/registration';
 
 export default function TournamentDetailPage() {
   const { id } = useParams();
@@ -22,12 +22,15 @@ export default function TournamentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [myRegistrations, setMyRegistrations] = useState<Registration[]>([]);
+  const [loadingMyRegistrations, setLoadingMyRegistrations] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [registering, setRegistering] = useState(false);
   const [userClubs, setUserClubs] = useState<Club[]>([]);
   const [selectedClubId, setSelectedClubId] = useState<string>('');
   const [showClubModal, setShowClubModal] = useState(false);
   const [showRegistrationWizard, setShowRegistrationWizard] = useState(false);
+  const [wizardAgeGroupId, setWizardAgeGroupId] = useState<string | undefined>();
   const [loadingClubs, setLoadingClubs] = useState(false);
   const [downloadingRegulations, setDownloadingRegulations] = useState(false);
   const [hasValidInvite, setHasValidInvite] = useState(false);
@@ -64,6 +67,14 @@ export default function TournamentDetailPage() {
       fetchTournament();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (tournament?.id && isAuthenticated) {
+      fetchMyRegistrations(tournament.id);
+    } else {
+      setMyRegistrations([]);
+    }
+  }, [tournament?.id, isAuthenticated]);
 
   // Validate invitation code for private tournaments
   useEffect(() => {
@@ -133,6 +144,19 @@ export default function TournamentDetailPage() {
     }
   };
 
+  const fetchMyRegistrations = async (tournamentId: string) => {
+    setLoadingMyRegistrations(true);
+    try {
+      const response = await registrationService.getMyRegistrationsForTournament(tournamentId);
+      setMyRegistrations(response.data || []);
+    } catch (err) {
+      console.warn('Failed to fetch user registrations for tournament:', err);
+      setMyRegistrations([]);
+    } finally {
+      setLoadingMyRegistrations(false);
+    }
+  };
+
   const handleRegister = async () => {
     if (!isAuthenticated) {
       window.location.href = '/auth/login';
@@ -140,11 +164,24 @@ export default function TournamentDetailPage() {
     }
 
     // Open the registration wizard for the full flow
+    setWizardAgeGroupId(undefined);
+    setShowRegistrationWizard(true);
+  };
+
+  const handleRegisterForAgeGroup = (ageGroupId?: string) => {
+    if (!isAuthenticated) {
+      window.location.href = '/auth/login';
+      return;
+    }
+    setWizardAgeGroupId(ageGroupId);
     setShowRegistrationWizard(true);
   };
 
   const handleRegistrationSuccess = (registration: Registration) => {
     fetchTournament();
+    if (tournament?.id) {
+      fetchMyRegistrations(tournament.id);
+    }
     setShowRegistrationWizard(false);
   };
 
@@ -242,6 +279,22 @@ export default function TournamentDetailPage() {
     return variants[normalizedStatus] || 'default';
   };
 
+  const getRegistrationStatusVariant = (status?: Registration['status']) => {
+    const variants: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'info'> = {
+      APPROVED: 'success',
+      PENDING: 'warning',
+      REJECTED: 'danger',
+      WITHDRAWN: 'default',
+    };
+    return (status && variants[status]) || 'default';
+  };
+
+  const getAgeGroupLabel = (birthYear: number, displayLabel?: string) => {
+    if (displayLabel) return displayLabel;
+    const currentYear = new Date().getFullYear();
+    return `U${currentYear - birthYear}`;
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -316,6 +369,10 @@ export default function TournamentDetailPage() {
   const mapTournaments = hasValidLocation
     ? [{ ...tournament, latitude: tournamentLatitude, longitude: tournamentLongitude }]
     : [];
+
+  const ageGroupById = new Map(
+    (tournament.ageGroups || []).map((ageGroup) => [ageGroup.id, ageGroup])
+  );
 
   const isOwner = !!user && (user.id === tournament.organizerId || user.id === tournament.organizer?.id);
 
@@ -397,8 +454,7 @@ export default function TournamentDetailPage() {
               <CardContent>
                 <div className="space-y-2">
                   {tournament.ageGroups.map((ag, index) => {
-                    const currentYear = new Date().getFullYear();
-                    const displayLabel = ag.displayLabel || `U${currentYear - ag.birthYear}`;
+                    const displayLabel = getAgeGroupLabel(ag.birthYear, ag.displayLabel);
                     const ageGroupMaxTeams =
                       ag.teamCount ??
                       ag.maxTeams ??
@@ -406,13 +462,29 @@ export default function TournamentDetailPage() {
                         ? ag.teamsPerGroup * ag.groupsCount
                         : 0);
                     const ageGroupCurrentTeams = ag.currentTeams ?? 0;
+                    const ageGroupRegistration = myRegistrations.find(
+                      (registration) => registration.ageGroupId === ag.id
+                    );
+                    const isRegistered = !!ageGroupRegistration;
+                    const statusLabel = ageGroupRegistration?.status?.toLowerCase() || 'pending';
+                    const ageGroupSpotsLeft = ageGroupMaxTeams > 0
+                      ? Math.max(ageGroupMaxTeams - ageGroupCurrentTeams, 0)
+                      : null;
+                    const ageGroupIsFull = ageGroupMaxTeams > 0 && ageGroupSpotsLeft === 0;
                     return (
                       <div key={ag.id || index} className="p-3 bg-white border border-gray-200 rounded-lg">
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium text-gray-900">{displayLabel}</span>
-                          {ag.gameSystem && (
-                            <Badge variant="info">{ag.gameSystem}</Badge>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {ag.gameSystem && (
+                              <Badge variant="info">{ag.gameSystem}</Badge>
+                            )}
+                            {isRegistered && (
+                              <Badge variant={getRegistrationStatusVariant(ageGroupRegistration?.status)}>
+                                {t(`registration.status.${statusLabel}`, ageGroupRegistration?.status)}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-500">
                           <span>{t('tournaments.ageGroups.birthYear', 'Birth Year')}: {ag.birthYear}</span>
@@ -437,6 +509,23 @@ export default function TournamentDetailPage() {
                           {ag.participationFee !== undefined && ag.participationFee !== null && (
                             <span>{t('tournaments.ageGroups.participationFee', 'Fee')}: €{ag.participationFee}</span>
                           )}
+                        </div>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs text-gray-500">
+                            {ageGroupMaxTeams > 0
+                              ? t('tournament.spotsLeft', 'Spots left') + `: ${ageGroupSpotsLeft}`
+                              : t('tournament.unlimited', 'Unlimited')}
+                          </span>
+                          <Button
+                            variant={isRegistered ? 'secondary' : 'primary'}
+                            size="sm"
+                            disabled={isRegistered || ageGroupIsFull}
+                            onClick={() => handleRegisterForAgeGroup(ag.id)}
+                          >
+                            {isRegistered
+                              ? t('registration.status.registered', 'Registered')
+                              : t('tournament.register')}
+                          </Button>
                         </div>
                       </div>
                     );
@@ -752,6 +841,55 @@ export default function TournamentDetailPage() {
                       {t('tournament.loginToRegister')}
                     </p>
                   )}
+
+                  {isAuthenticated && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-gray-900">
+                          {t('registration.status.title', 'Your Applications')}
+                        </h4>
+                      </div>
+                      {loadingMyRegistrations ? (
+                        <div className="flex justify-center py-2">
+                          <Loading size="sm" />
+                        </div>
+                      ) : myRegistrations.length === 0 ? (
+                        <p className="text-xs text-gray-500">
+                          {t('registration.status.notRegisteredDesc', "You haven't registered for this tournament yet.")}
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {myRegistrations.map((registration) => {
+                            const ageGroup = registration.ageGroupId
+                              ? ageGroupById.get(registration.ageGroupId)
+                              : undefined;
+                            const ageGroupLabel = ageGroup
+                              ? getAgeGroupLabel(ageGroup.birthYear, ageGroup.displayLabel)
+                              : t('tournament.ageCategory.open', 'Open');
+                            const statusLabel = registration.status?.toLowerCase() || 'pending';
+                            return (
+                              <div
+                                key={registration.id}
+                                className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2"
+                              >
+                                <div className="min-w-0">
+                                  <p className="text-xs font-medium text-gray-900 truncate">
+                                    {registration.club?.name || t('common.team', 'Team')}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {ageGroupLabel}
+                                  </p>
+                                </div>
+                                <Badge variant={getRegistrationStatusVariant(registration.status)}>
+                                  {t(`registration.status.${statusLabel}`, registration.status)}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -825,8 +963,12 @@ export default function TournamentDetailPage() {
         <RegistrationWizard
           tournament={tournament}
           isOpen={showRegistrationWizard}
-          onClose={() => setShowRegistrationWizard(false)}
+          onClose={() => {
+            setShowRegistrationWizard(false);
+            setWizardAgeGroupId(undefined);
+          }}
           onSuccess={handleRegistrationSuccess}
+          initialAgeGroupId={wizardAgeGroupId}
         />
       )}
     </MainLayout>

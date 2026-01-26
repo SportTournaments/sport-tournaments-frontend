@@ -181,6 +181,13 @@ export async function getMyRegistration(tournamentId: string): Promise<ApiRespon
   return apiGet<ApiResponse<RegistrationWithDetails>>(`/v1/tournaments/${tournamentId}/my-registration`);
 }
 
+// Get my registrations for a tournament (multiple categories)
+export async function getMyRegistrationsForTournament(
+  tournamentId: string
+): Promise<ApiResponse<Registration[]>> {
+  return apiGet<ApiResponse<Registration[]>>(`/v1/tournaments/${tournamentId}/my-registrations`);
+}
+
 // Document Upload Methods
 export async function uploadDocument(
   registrationId: string,
@@ -243,6 +250,7 @@ export const registrationService = {
   getRegistrationStatistics,
   getMyRegistrations,
   getMyRegistration,
+  getMyRegistrationsForTournament,
   getRegistrationById,
   updateRegistration,
   adminUpdateRegistration,
