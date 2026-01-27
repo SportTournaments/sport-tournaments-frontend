@@ -25,6 +25,7 @@ export default function TournamentDetailPage() {
   const [myRegistrations, setMyRegistrations] = useState<Registration[]>([]);
   const [loadingMyRegistrations, setLoadingMyRegistrations] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authRequired, setAuthRequired] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [userClubs, setUserClubs] = useState<Club[]>([]);
   const [selectedClubId, setSelectedClubId] = useState<string>('');
@@ -106,6 +107,7 @@ export default function TournamentDetailPage() {
   const fetchTournament = async () => {
     setLoading(true);
     setError(null);
+    setAuthRequired(false);
     try {
       const rawId = id as string;
       const response = isUuid(rawId)
@@ -131,13 +133,15 @@ export default function TournamentDetailPage() {
     } catch (err: any) {
       console.error('Failed to fetch tournament:', err);
       if (err.response?.status === 403) {
-        setError('You need to log in to view tournament details.');
+        setAuthRequired(true);
+        setError(t('tournament.loginRequired', 'You need to log in to view tournament details.'));
       } else if (err.response?.status === 401) {
-        setError('You need to log in to view tournament details.');
+        setAuthRequired(true);
+        setError(t('tournament.loginRequired', 'You need to log in to view tournament details.'));
       } else if (err.response?.status === 404) {
-        setError('Tournament not found.');
+        setError(t('tournament.notFound', 'Tournament not found.'));
       } else {
-        setError(err.response?.data?.message || 'Failed to load tournament details');
+        setError(err.response?.data?.message || t('tournament.fetchError', 'Failed to load tournament details'));
       }
     } finally {
       setLoading(false);
@@ -306,11 +310,11 @@ export default function TournamentDetailPage() {
   }
 
   if (error || !tournament) {
-    const isAuthError = error?.includes('log in');
+    const isAuthError = authRequired;
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-8">
-          <Alert variant="error">{error || 'Tournament not found'}</Alert>
+          <Alert variant="error">{error || t('tournament.notFound', 'Tournament not found')}</Alert>
           <div className="flex gap-4 mt-4">
             <Link href="/main/tournaments">
               <Button variant="ghost">
