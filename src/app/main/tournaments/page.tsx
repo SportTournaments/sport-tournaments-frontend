@@ -25,9 +25,8 @@ export default function TournamentsPage() {
   const [level, setLevel] = useState<string>('');
   const [country, setCountry] = useState('');
   const [gameSystem, setGameSystem] = useState('');
-  const [startDateFrom, setStartDateFrom] = useState('');
-  const [startDateTo, setStartDateTo] = useState('');
-  const [period, setPeriod] = useState('');
+  const [startDateFromInput, setStartDateFromInput] = useState('');
+  const [startDateToInput, setStartDateToInput] = useState('');
   const [numberOfMatchesMin, setNumberOfMatchesMin] = useState('');
   const [numberOfMatchesMax, setNumberOfMatchesMax] = useState('');
   const [isPremium, setIsPremium] = useState(false);
@@ -40,6 +39,9 @@ export default function TournamentsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const debouncedSearch = useDebounce(search, 300);
 
+  const dateOnlyFrom = startDateFromInput ? startDateFromInput.split('T')[0] : '';
+  const dateOnlyTo = startDateToInput ? startDateToInput.split('T')[0] : '';
+
   const fetchTournaments = useCallback(async (page: number) => {
     const params: Record<string, unknown> = {
       page,
@@ -51,8 +53,8 @@ export default function TournamentsPage() {
     if (level) params.level = level;
     if (country) params.country = country;
     if (gameSystem) params.gameSystem = gameSystem;
-    if (startDateFrom) params.startDateFrom = startDateFrom;
-    if (startDateTo) params.startDateTo = startDateTo;
+    if (dateOnlyFrom) params.startDateFrom = dateOnlyFrom;
+    if (dateOnlyTo) params.startDateTo = dateOnlyTo;
     if (numberOfMatchesMin) params.numberOfMatchesMin = Number(numberOfMatchesMin);
     if (numberOfMatchesMax) params.numberOfMatchesMax = Number(numberOfMatchesMax);
     if (isPremium) params.isPremium = true;
@@ -110,8 +112,8 @@ export default function TournamentsPage() {
     level,
     country,
     gameSystem,
-    startDateFrom,
-    startDateTo,
+    dateOnlyFrom,
+    dateOnlyTo,
     numberOfMatchesMin,
     numberOfMatchesMax,
     isPremium,
@@ -140,8 +142,8 @@ export default function TournamentsPage() {
       level,
       country,
       gameSystem,
-      startDateFrom,
-      startDateTo,
+      dateOnlyFrom,
+      dateOnlyTo,
       numberOfMatchesMin,
       numberOfMatchesMax,
       isPremium,
@@ -225,22 +227,13 @@ export default function TournamentsPage() {
     { value: 'DESC', label: t('common.descending') },
   ];
 
-  const periodOptions = [
-    { value: '', label: t('tournament.filters.periodAny', 'Any time') },
-    { value: 'next_7_days', label: t('tournament.filters.periodNext7', 'Next 7 days') },
-    { value: 'next_30_days', label: t('tournament.filters.periodNext30', 'Next 30 days') },
-    { value: 'next_90_days', label: t('tournament.filters.periodNext90', 'Next 90 days') },
-    { value: 'this_month', label: t('tournament.filters.periodThisMonth', 'This month') },
-  ];
-
   const clearAdvancedFilters = () => {
     setAgeCategory('');
     setLevel('');
     setCountry('');
     setGameSystem('');
-    setStartDateFrom('');
-    setStartDateTo('');
-    setPeriod('');
+    setStartDateFromInput('');
+    setStartDateToInput('');
     setNumberOfMatchesMin('');
     setNumberOfMatchesMax('');
     setIsPremium(false);
@@ -265,39 +258,6 @@ export default function TournamentsPage() {
     return variants[normalizedStatus] || 'default';
   };
 
-  const applyPeriod = (value: string) => {
-    setPeriod(value);
-    if (!value) {
-      setStartDateFrom('');
-      setStartDateTo('');
-      return;
-    }
-
-    const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    let end = new Date(start);
-
-    switch (value) {
-      case 'next_7_days':
-        end.setDate(end.getDate() + 7);
-        break;
-      case 'next_30_days':
-        end.setDate(end.getDate() + 30);
-        break;
-      case 'next_90_days':
-        end.setDate(end.getDate() + 90);
-        break;
-      case 'this_month':
-        end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-        break;
-      default:
-        break;
-    }
-
-    const toIsoDate = (date: Date) => date.toISOString().split('T')[0];
-    setStartDateFrom(toIsoDate(start));
-    setStartDateTo(toIsoDate(end));
-  };
 
   return (
     <MainLayout>
@@ -540,12 +500,19 @@ export default function TournamentsPage() {
               value={country}
               onChange={(e) => setCountry(e.target.value)}
             />
-            <Select
-              containerClassName="w-full sm:w-48"
-              options={periodOptions}
-              value={period}
-              onChange={(e) => applyPeriod(e.target.value)}
-              label={t('tournament.filters.period', 'Period')}
+            <Input
+              containerClassName="w-full sm:w-52"
+              label={t('tournament.filters.startDateFrom')}
+              type="datetime-local"
+              value={startDateFromInput}
+              onChange={(e) => setStartDateFromInput(e.target.value)}
+            />
+            <Input
+              containerClassName="w-full sm:w-52"
+              label={t('tournament.filters.startDateTo')}
+              type="datetime-local"
+              value={startDateToInput}
+              onChange={(e) => setStartDateToInput(e.target.value)}
             />
           </div>
         </div>
