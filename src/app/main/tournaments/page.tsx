@@ -25,8 +25,8 @@ export default function TournamentsPage() {
   const [level, setLevel] = useState<string>('');
   const [country, setCountry] = useState('');
   const [gameSystem, setGameSystem] = useState('');
-  const [startDateFrom, setStartDateFrom] = useState('');
-  const [startDateTo, setStartDateTo] = useState('');
+  const [startDateFromInput, setStartDateFromInput] = useState('');
+  const [startDateToInput, setStartDateToInput] = useState('');
   const [numberOfMatchesMin, setNumberOfMatchesMin] = useState('');
   const [numberOfMatchesMax, setNumberOfMatchesMax] = useState('');
   const [isPremium, setIsPremium] = useState(false);
@@ -39,6 +39,9 @@ export default function TournamentsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const debouncedSearch = useDebounce(search, 300);
 
+  const dateOnlyFrom = startDateFromInput ? startDateFromInput.split('T')[0] : '';
+  const dateOnlyTo = startDateToInput ? startDateToInput.split('T')[0] : '';
+
   const fetchTournaments = useCallback(async (page: number) => {
     const params: Record<string, unknown> = {
       page,
@@ -50,8 +53,8 @@ export default function TournamentsPage() {
     if (level) params.level = level;
     if (country) params.country = country;
     if (gameSystem) params.gameSystem = gameSystem;
-    if (startDateFrom) params.startDateFrom = startDateFrom;
-    if (startDateTo) params.startDateTo = startDateTo;
+    if (dateOnlyFrom) params.startDateFrom = dateOnlyFrom;
+    if (dateOnlyTo) params.startDateTo = dateOnlyTo;
     if (numberOfMatchesMin) params.numberOfMatchesMin = Number(numberOfMatchesMin);
     if (numberOfMatchesMax) params.numberOfMatchesMax = Number(numberOfMatchesMax);
     if (isPremium) params.isPremium = true;
@@ -109,8 +112,8 @@ export default function TournamentsPage() {
     level,
     country,
     gameSystem,
-    startDateFrom,
-    startDateTo,
+    dateOnlyFrom,
+    dateOnlyTo,
     numberOfMatchesMin,
     numberOfMatchesMax,
     isPremium,
@@ -139,8 +142,8 @@ export default function TournamentsPage() {
       level,
       country,
       gameSystem,
-      startDateFrom,
-      startDateTo,
+      dateOnlyFrom,
+      dateOnlyTo,
       numberOfMatchesMin,
       numberOfMatchesMax,
       isPremium,
@@ -229,8 +232,8 @@ export default function TournamentsPage() {
     setLevel('');
     setCountry('');
     setGameSystem('');
-    setStartDateFrom('');
-    setStartDateTo('');
+    setStartDateFromInput('');
+    setStartDateToInput('');
     setNumberOfMatchesMin('');
     setNumberOfMatchesMax('');
     setIsPremium(false);
@@ -254,6 +257,7 @@ export default function TournamentsPage() {
     };
     return variants[normalizedStatus] || 'default';
   };
+
 
   return (
     <MainLayout>
@@ -432,52 +436,84 @@ export default function TournamentsPage() {
           </div>
         )}
 
-        {/* View Toggle Buttons */}
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-gray-500 mr-2">{t('common.view', 'View')}:</span>
-          <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-              title={t('tournaments.listView', 'List view')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-              <span className="hidden sm:inline">{t('common.list', 'List')}</span>
-            </button>
-            <button
-              onClick={() => setViewMode('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'calendar'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-              title={t('tournaments.calendarView', 'Calendar view')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span className="hidden sm:inline">{t('common.calendar', 'Calendar')}</span>
-            </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-              title={t('tournaments.mapView', 'Map view')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              <span className="hidden sm:inline">{t('common.map', 'Map')}</span>
-            </button>
+        {/* View Toggle Buttons + Quick Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500 mr-2">{t('common.view', 'View')}:</span>
+            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                title={t('tournaments.listView', 'List view')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                <span className="hidden sm:inline">{t('common.list', 'List')}</span>
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === 'calendar'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                title={t('tournaments.calendarView', 'Calendar view')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="hidden sm:inline">{t('common.calendar', 'Calendar')}</span>
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === 'map'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                title={t('tournaments.mapView', 'Map view')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                <span className="hidden sm:inline">{t('common.map', 'Map')}</span>
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <Select
+              containerClassName="w-full sm:w-48"
+              options={ageCategoryOptions}
+              value={ageCategory}
+              onChange={(e) => setAgeCategory(e.target.value)}
+              label={t('tournament.ageCategory.label')}
+            />
+            <Input
+              containerClassName="w-full sm:w-48"
+              label={t('common.country')}
+              placeholder={t('common.country')}
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+            />
+            <Input
+              containerClassName="w-full sm:w-52"
+              label={t('tournament.filters.startDateFrom')}
+              type="datetime-local"
+              value={startDateFromInput}
+              onChange={(e) => setStartDateFromInput(e.target.value)}
+            />
+            <Input
+              containerClassName="w-full sm:w-52"
+              label={t('tournament.filters.startDateTo')}
+              type="datetime-local"
+              value={startDateToInput}
+              onChange={(e) => setStartDateToInput(e.target.value)}
+            />
           </div>
         </div>
 
@@ -558,13 +594,19 @@ export default function TournamentsPage() {
                       <div className="mt-4 space-y-2">
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        onChange={(e) => {
+                          setPeriod('');
+                          setStartDateFrom(e.target.value);
+                        }}
                           </svg>
                           {formatDate(tournament.startDate)} - {formatDate(tournament.endDate)}
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        onChange={(e) => {
+                          setPeriod('');
+                          setStartDateTo(e.target.value);
+                        }}
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                           <span className="flex-1 truncate">
