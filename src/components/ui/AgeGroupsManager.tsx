@@ -73,6 +73,8 @@ export interface AgeGroupFormData {
   participationFee?: number;
   startDate?: string;
   endDate?: string;
+  registrationStartDate?: string;
+  registrationEndDate?: string;
   locationId?: string;
   locationAddress?: string;
   groupsCount?: number;
@@ -406,6 +408,26 @@ export function AgeGroupsManager({
                       value={ageGroup.endDate || ''}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { endDate: e.target.value || undefined })}
                       disabled={disabled}
+                    />
+
+                    {/* Registration Start Date */}
+                    <Input
+                      type="date"
+                      label={t('tournaments.ageGroups.registrationStartDate', 'Registration Opens')}
+                      value={ageGroup.registrationStartDate || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { registrationStartDate: e.target.value || undefined })}
+                      disabled={disabled}
+                      helperText={t('tournaments.ageGroups.registrationStartDateHelp', 'Leave empty to use tournament default')}
+                    />
+
+                    {/* Registration End Date */}
+                    <Input
+                      type="date"
+                      label={t('tournaments.ageGroups.registrationEndDate', 'Registration Closes')}
+                      value={ageGroup.registrationEndDate || ''}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => handleUpdateAgeGroup(index, { registrationEndDate: e.target.value || undefined })}
+                      disabled={disabled}
+                      helperText={t('tournaments.ageGroups.registrationEndDateHelp', 'Leave empty to use tournament default')}
                     />
 
                     {/* Location Override */}

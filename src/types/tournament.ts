@@ -50,6 +50,8 @@ export interface AgeGroup {
   guaranteedMatches?: number;
   startDate?: string;
   endDate?: string;
+  registrationStartDate?: string;
+  registrationEndDate?: string;
   locationId?: string;
   locationAddress?: string;
   participationFee?: number;

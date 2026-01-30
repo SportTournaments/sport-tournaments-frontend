@@ -22,10 +22,6 @@ const tournamentSchema = z.object({
   latitude: z.coerce.number().optional(),
   longitude: z.coerce.number().optional(),
   whatsappGroupLink: z.string().url('Invalid URL').optional().or(z.literal('')),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  registrationStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  registrationEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   rules: z.string().optional(),
   isPrivate: z.boolean().default(false),
   invitationCodeExpirationDays: z.coerce.number().min(1).max(365).optional(),
@@ -190,16 +186,10 @@ export default function CreateTournamentPage() {
         latitude: data.latitude,
         longitude: data.longitude,
         ...(data.whatsappGroupLink?.trim() && { whatsappGroupLink: data.whatsappGroupLink.trim() }),
-        startDate: data.startDate,
-        endDate: data.endDate,
-        // Map frontend fields to backend fields  
-        registrationStartDate: data.registrationStartDate,
-        registrationEndDate: data.registrationEndDate,
-        registrationDeadline: data.registrationEndDate, // Backward compatibility
         isPrivate: data.isPrivate,
         // Only include rules if provided (as regulationsData)
         ...(data.rules && { regulationsData: { rules: data.rules } }),
-        // Include age groups (required now)
+        // Include age groups (required now - they handle all dates)
         ageGroups,
       };
       const response = await tournamentService.createTournament(tournamentData);
@@ -375,43 +365,6 @@ export default function CreateTournamentPage() {
             </CardContent>
           </Card>
 
-          {/* Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tournament.dates')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label={t('tournament.registrationStartDate')}
-                  type="date"
-                  error={errors.registrationStartDate?.message}
-                  {...register('registrationStartDate')}
-                />
-                <Input
-                  label={t('tournament.registrationEndDate')}
-                  type="date"
-                  error={errors.registrationEndDate?.message}
-                  {...register('registrationEndDate')}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  label={t('tournament.startDate')}
-                  type="date"
-                  error={errors.startDate?.message}
-                  {...register('startDate')}
-                />
-                <Input
-                  label={t('tournament.endDate')}
-                  type="date"
-                  error={errors.endDate?.message}
-                  {...register('endDate')}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Age Categories */}
           <Card>
             <CardHeader>
@@ -424,8 +377,6 @@ export default function CreateTournamentPage() {
               <AgeGroupsManager
                 ageGroups={ageGroups}
                 onChange={setAgeGroups}
-                tournamentStartDate={watchedStartDate}
-                tournamentEndDate={watchedEndDate}
                 tournamentLocation={watch('location')}
                 disabled={isLoading}
               />

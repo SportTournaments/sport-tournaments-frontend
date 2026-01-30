@@ -24,11 +24,6 @@ const tournamentSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   urlSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase letters, numbers, and hyphens only').optional().or(z.literal('')),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
-  registrationStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
-  registrationEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
-  registrationDeadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
   location: z.string().min(3, 'Location is required'),
   latitude: z.coerce.number().optional(),
   longitude: z.coerce.number().optional(),
@@ -477,43 +472,6 @@ export default function EditTournamentPage() {
                   {t('tournament.isPrivateHelp', 'Private tournaments require an invitation code to register.')}
                 </p>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('tournament.dates')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  type="date"
-                  label={t('tournament.startDate')}
-                  error={errors.startDate?.message}
-                  {...register('startDate')}
-                />
-                <Input
-                  type="date"
-                  label={t('tournament.endDate')}
-                  error={errors.endDate?.message}
-                  {...register('endDate')}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  type="date"
-                  label={t('tournament.registrationStartDate', 'Registration Start')}
-                  error={errors.registrationStartDate?.message}
-                  {...register('registrationStartDate')}
-                />
-                <Input
-                  type="date"
-                  label={t('tournament.registrationEndDate', 'Registration End')}
-                  error={errors.registrationEndDate?.message}
-                  {...register('registrationEndDate')}
-                />
-              </div>
             </CardContent>
           </Card>
 
